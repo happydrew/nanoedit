@@ -1,0 +1,574 @@
+{
+  "template": "nanoedit-template",
+  "theme": "light",
+  "header": {
+    "brand": {
+      "title": "NanoEdit",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "NanoEdit"
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "Features",
+          "url": "/#features",
+          "icon": "RiSparkling2Line"
+        },
+        {
+          "title": "Examples",
+          "url": "/#examples",
+          "icon": "RiImageLine"
+        },
+        {
+          "title": "Pricing",
+          "url": "/pricing",
+          "icon": "RiMoneyDollarCircleLine"
+        }
+      ]
+    },
+    "buttons": [
+      {
+        "title": "Try Free",
+        "icon": "RiPlayFill",
+        "url": "/editor",
+        "target": "_self",
+        "variant": "default"
+      }
+    ],
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true
+  },
+  "hero": {
+    "title": "Transform Images with Nano Banana AI",
+    "highlight_text": "Nano Banana AI",
+    "description": "The most powerful AI photo editor powered by Google's Gemini 2.5 Flash Image model. Create trending social media styles and transform your photos with simple text commands.",
+    "announcement": {
+      "label": "NEW",
+      "title": "🎨 Powered by Nano Banana & Gemini AI",
+      "url": "/#features"
+    },
+    "tip": "✨ Most popular AI photo editor templates",
+    "buttons": [
+      {
+        "title": "Start Editing",
+        "icon": "RiMagicFill",
+        "url": "#tool-section",
+        "target": "_self",
+        "variant": "default"
+      },
+      {
+        "title": "🔥 View Popular Templates",
+        "icon": "RiFire2Fill",
+        "url": "#examples",
+        "target": "_self",
+        "variant": "default"
+      }
+    ],
+    "show_happy_users": false,
+    "show_badge": false
+  },
+  "branding": {
+    "title": "Powered by the world's most advanced AI models",
+    "items": [
+      {
+        "title": "Nano Banana",
+        "image": {
+          "src": "/imgs/icons/banana-icon.webp",
+          "alt": "Nano Banana AI"
+        }
+      },
+      {
+        "title": "Google Gemini 2.5 Flash",
+        "image": {
+          "src": "/imgs/icons/gemini-icon.svg",
+          "alt": "Google Gemini 2.5 Flash Image"
+        }
+      }
+    ]
+  },
+  "introduce": {
+    "name": "introduce",
+    "title": "What is NanoBanana AI",
+    "label": "About",
+    "description": "NanoBanana is an advanced AI-powered image editing platform that transforms your photos with simple natural language commands.",
+    "image": {
+      "src": "/imgs/features/ai-editing.png"
+    },
+    "items": [
+      {
+        "title": "Natural Language Editing",
+        "description": "Simply describe what you want to change in plain English, and our AI will understand and execute your vision.",
+        "icon": "RiChatSmile3Line"
+      },
+      {
+        "title": "Instant Results",
+        "description": "Get professional-quality edits in seconds without learning complex software or techniques.",
+        "icon": "RiFlashFill"
+      },
+      {
+        "title": "Multiple AI Models",
+        "description": "Powered by the latest AI models including Gemini 2.5 Flash for the best editing results.",
+        "icon": "RiRobot2Line"
+      }
+    ]
+  },
+  "benefit": {
+    "name": "benefit",
+    "title": "Why Choose NanoBanana AI",
+    "label": "Benefits",
+    "description": "Experience the future of image editing with our advanced AI technology and intuitive interface.",
+    "items": [
+      {
+        "title": "No Skills Required",
+        "description": "Anyone can edit images professionally using simple text descriptions. No Photoshop knowledge needed.",
+        "icon": "RiUserSmileLine",
+        "image": {
+          "src": "/imgs/features/easy-editing.png"
+        }
+      },
+      {
+        "title": "Lightning Fast",
+        "description": "Get instant results with our optimized AI models. Edit multiple images in seconds, not hours.",
+        "icon": "RiFlashLine",
+        "image": {
+          "src": "/imgs/features/fast-editing.png"
+        }
+      },
+      {
+        "title": "Professional Quality",
+        "description": "Achieve studio-level results with AI that understands context, lighting, and composition.",
+        "icon": "RiStarFill",
+        "image": {
+          "src": "/imgs/features/professional-quality.png"
+        }
+      }
+    ]
+  },
+  "usage": {
+    "name": "usage",
+    "title": "How to Use NanoBanana AI",
+    "description": "Edit your images in three simple steps:",
+    "image": {
+      "src": "/imgs/features/how-to-use.png"
+    },
+    "image_position": "left",
+    "text_align": "center",
+    "items": [
+      {
+        "title": "Upload Your Image",
+        "description": "Drag and drop or click to upload any image from your device or paste from clipboard."
+      },
+      {
+        "title": "Describe Your Edit",
+        "description": "Write a simple description of what you want to change, add, or remove from the image."
+      },
+      {
+        "title": "Get Instant Results",
+        "description": "Our AI processes your request and delivers professional-quality results in seconds."
+      },
+      {
+        "title": "Download & Share",
+        "description": "Save your edited image in high resolution or share it directly to social media platforms."
+      }
+    ]
+  },
+  "feature": {
+    "name": "feature",
+    "title": "Powerful Nano Banana AI Photo Editor Features",
+    "description": "Everything you need in an AI image editor powered by cutting-edge Gemini AI photo generator technology for the best AI foto editor experience.",
+    "items": [
+      {
+        "title": "AI Photo Editor Object Removal",
+        "description": "Remove unwanted objects, people, or text from your images with our advanced Nano Banana AI technology.",
+        "icon": "RiEraserLine"
+      },
+      {
+        "title": "Gemini AI Photo Generator Object Addition",
+        "description": "Add new objects, animals, or people to your photos with perfect integration using our AI image editor.",
+        "icon": "RiAddCircleLine"
+      },
+      {
+        "title": "New Gemini Trend Prompt Style Transfer",
+        "description": "Apply artistic styles, change seasons, or transform the mood of any image with our AI foto editor.",
+        "icon": "RiPaletteLine"
+      },
+      {
+        "title": "Nano Banana AI Background Replacement",
+        "description": "Replace backgrounds instantly with any setting using our powerful AI photo editor capabilities.",
+        "icon": "RiImageEditLine"
+      },
+      {
+        "title": "AI Image Editor Color Modification",
+        "description": "Change colors, adjust lighting, or enhance appearance with Gemini AI photo generator precision.",
+        "icon": "RiDropLine"
+      },
+      {
+        "title": "AI Foto Editor Resolution Enhancement",
+        "description": "Upscale images and improve quality while maintaining sharp details with Nano Banana AI.",
+        "icon": "RiHdLine"
+      }
+    ]
+  },
+  "toolShowcase": {
+    "title": "See NanoBanana AI in Action",
+    "description": "Watch how our AI transforms ordinary photos into extraordinary creations",
+    "label": "Live Examples",
+    "items": [
+      {
+        "title": "Remove Unwanted Objects",
+        "description": "Effortlessly remove photobombers, unwanted objects, or distractions from your photos. Our AI intelligently fills in the background for seamless results.",
+        "badge": "Most Popular",
+        "features": [
+          {
+            "icon": "RiEyeLine",
+            "title": "Smart Detection",
+            "description": "AI automatically identifies and isolates objects for removal"
+          },
+          {
+            "icon": "RiFillDrip",
+            "title": "Intelligent Fill",
+            "description": "Seamlessly fills removed areas with matching background"
+          },
+          {
+            "icon": "RiTimeLine",
+            "title": "Instant Results",
+            "description": "Get professional results in under 10 seconds"
+          }
+        ],
+        "video": {
+          "src": "/videos/object-removal-demo.mp4",
+          "poster": "/imgs/demos/object-removal-poster.jpg",
+          "alt": "Object Removal Demo",
+          "autoplay": true,
+          "loop": true,
+          "muted": true
+        },
+        "buttons": [
+          {
+            "text": "Try Object Removal",
+            "url": "/editor?feature=removal",
+            "variant": "default",
+            "icon": "RiMagicLine"
+          }
+        ]
+      },
+      {
+        "title": "Add Objects & Elements",
+        "description": "Bring your imagination to life by adding new objects, people, animals, or elements to your photos. Our AI ensures perfect lighting, shadows, and perspective.",
+        "reverse": true,
+        "features": [
+          {
+            "icon": "RiSparkling2Line",
+            "title": "Natural Integration",
+            "description": "Added objects blend naturally with existing lighting and perspective"
+          },
+          {
+            "icon": "RiPaletteLine",
+            "title": "Style Matching",
+            "description": "Automatically matches the artistic style of your original image"
+          },
+          {
+            "icon": "RiSettings3Line",
+            "title": "Precise Control",
+            "description": "Fine-tune placement, size, and appearance of added elements"
+          }
+        ],
+        "video": {
+          "src": "/videos/object-addition-demo.mp4",
+          "poster": "/imgs/demos/object-addition-poster.jpg",
+          "alt": "Object Addition Demo",
+          "autoplay": true,
+          "loop": true,
+          "muted": true
+        },
+        "buttons": [
+          {
+            "text": "Try Adding Objects",
+            "url": "/editor?feature=addition",
+            "variant": "default",
+            "icon": "RiAddLine"
+          }
+        ]
+      },
+      {
+        "title": "Transform Backgrounds",
+        "description": "Transport your subjects to any location or setting imaginable. From exotic beaches to professional studios, create the perfect backdrop for any photo.",
+        "features": [
+          {
+            "icon": "RiEarthLine",
+            "title": "Any Location",
+            "description": "Replace backgrounds with any real or imaginary location"
+          },
+          {
+            "icon": "RiContrastLine",
+            "title": "Perfect Matching",
+            "description": "AI adjusts lighting and colors for realistic integration"
+          },
+          {
+            "icon": "RiCrop2Line",
+            "title": "Precise Edges",
+            "description": "Clean, professional edge detection and masking"
+          }
+        ],
+        "image": {
+          "src": "/imgs/demos/background-replacement.jpg",
+          "alt": "Background Replacement Examples"
+        },
+        "buttons": [
+          {
+            "text": "Change Backgrounds",
+            "url": "/editor?feature=background",
+            "variant": "default",
+            "icon": "RiImageLine"
+          },
+          {
+            "text": "View Gallery",
+            "url": "/gallery/backgrounds",
+            "variant": "outline",
+            "icon": "RiGalleryLine"
+          }
+        ]
+      }
+    ]
+  },
+  "stats": {
+    "name": "stats",
+    "label": "Numbers",
+    "title": "Creators Love NanoBanana AI",
+    "description": "Join thousands of content creators transforming their images",
+    "icon": "RiHeartFill",
+    "items": [
+      {
+        "title": "Images Edited",
+        "label": "2.5M+",
+        "description": "Successfully processed"
+      },
+      {
+        "title": "Active Users",
+        "label": "50K+",
+        "description": "Creative professionals"
+      },
+      {
+        "title": "Average Time",
+        "label": "8s",
+        "description": "Per AI edit"
+      }
+    ]
+  },
+  "testimonial": {
+    "name": "testimonial",
+    "label": "Testimonials",
+    "title": "What Creators Say About NanoBanana AI",
+    "description": "Hear from photographers, designers, and content creators who transform their work with AI.",
+    "icon": "RiThumbUpFill",
+    "items": [
+      {
+        "title": "Sarah Mitchell",
+        "label": "Professional Photographer",
+        "description": "NanoBanana AI has revolutionized my workflow. What used to take hours in Photoshop now takes seconds. The object removal is incredibly accurate!",
+        "image": {
+          "src": "/imgs/users/photographer.png"
+        }
+      },
+      {
+        "title": "Alex Rodriguez",
+        "label": "Social Media Manager",
+        "description": "Creating engaging content for multiple brands is so much easier now. I can quickly remove distractions and add creative elements to any photo.",
+        "image": {
+          "src": "/imgs/users/social-media.png"
+        }
+      },
+      {
+        "title": "Emily Chen",
+        "label": "E-commerce Entrepreneur",
+        "description": "The background replacement feature is a game-changer for product photos. Professional-looking images without expensive photo shoots!",
+        "image": {
+          "src": "/imgs/users/entrepreneur.png"
+        }
+      },
+      {
+        "title": "Marco Silva",
+        "label": "Graphic Designer",
+        "description": "As a designer, I'm amazed by how natural the AI edits look. It understands lighting, shadows, and perspective better than I expected.",
+        "image": {
+          "src": "/imgs/users/designer.png"
+        }
+      },
+      {
+        "title": "Lisa Wang",
+        "label": "Travel Blogger",
+        "description": "I can now create stunning travel photos even when conditions weren't perfect. Adding sunsets or removing crowds has never been easier!",
+        "image": {
+          "src": "/imgs/users/blogger.png"
+        }
+      },
+      {
+        "title": "David Kim",
+        "label": "Real Estate Agent",
+        "description": "Property photos look amazing after AI enhancement. I can stage empty rooms and improve lighting to help sell homes faster.",
+        "image": {
+          "src": "/imgs/users/realtor.png"
+        }
+      }
+    ]
+  },
+  "faq": {
+    "name": "faq",
+    "label": "FAQ",
+    "title": "Frequently Asked Questions",
+    "description": "Everything you need to know about NanoBanana AI image editing",
+    "items": [
+      {
+        "title": "How does NanoBanana AI work?",
+        "description": "NanoBanana AI uses advanced machine learning models including Google's Gemini 2.5 Flash to understand your text descriptions and apply sophisticated image editing techniques. Simply upload an image, describe what you want to change, and our AI does the rest."
+      },
+      {
+        "title": "Do I need any design experience to use NanoBanana?",
+        "description": "Not at all! NanoBanana AI is designed for everyone. You just need to describe what you want in plain English. Our AI understands natural language and translates your words into professional image edits."
+      },
+      {
+        "title": "What types of edits can I make?",
+        "description": "You can remove objects, add new elements, change backgrounds, modify colors, enhance resolution, apply artistic styles, and much more. If you can describe it, our AI can likely do it."
+      },
+      {
+        "title": "How long does it take to process an image?",
+        "description": "Most edits are completed in 5-15 seconds, depending on the complexity of your request and image size. Our AI models are optimized for speed while maintaining high quality results."
+      },
+      {
+        "title": "What image formats are supported?",
+        "description": "We support all common image formats including JPG, PNG, WebP, and HEIC. You can upload images up to 50MB in size and our AI will maintain the original quality in your edited results."
+      },
+      {
+        "title": "Is there a limit to how many images I can edit?",
+        "description": "Free users get 10 edits per month. Our Pro plan offers unlimited edits, priority processing, higher resolution outputs, and advanced features like batch processing."
+      }
+    ]
+  },
+  "cta": {
+    "name": "cta",
+    "title": "Transform Your Images Today",
+    "description": "Join thousands of creators using AI to edit images instantly",
+    "buttons": [
+      {
+        "title": "Start Editing Free",
+        "url": "/editor",
+        "target": "_self",
+        "icon": "RiMagicFill"
+      },
+      {
+        "title": "View Examples",
+        "url": "/gallery",
+        "target": "_self",
+        "variant": "outline"
+      }
+    ]
+  },
+  "footer": {
+    "name": "footer",
+    "brand": {
+      "title": "NanoEdit",
+      "description": "The most powerful AI photo editor powered by Nano Banana AI. Transform your images with trending social media styles and advanced Gemini AI photo generator capabilities.",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "NanoEdit - Nano Banana AI Photo Editor"
+      },
+      "url": "/"
+    },
+    "copyright": "© 2025 • NanoEdit All rights reserved.",
+    "nav": {
+      "items": [
+        {
+          "title": "Product",
+          "children": [
+            {
+              "title": "Features",
+              "url": "/#features"
+            },
+            {
+              "title": "Pricing",
+              "url": "/pricing"
+            },
+            {
+              "title": "Examples",
+              "url": "/gallery"
+            }
+          ]
+        },
+        {
+          "title": "Resources",
+          "children": [
+            {
+              "title": "Tutorial",
+              "url": "/tutorial"
+            },
+            {
+              "title": "API Docs",
+              "url": "/docs"
+            },
+            {
+              "title": "Blog",
+              "url": "/blog"
+            }
+          ]
+        },
+        {
+          "title": "Company",
+          "children": [
+            {
+              "title": "About",
+              "url": "/about"
+            },
+            {
+              "title": "Contact",
+              "url": "/contact"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "X",
+          "icon": "RiTwitterXFill",
+          "url": "https://x.com/nanobanana_ai",
+          "target": "_blank"
+        },
+        {
+          "title": "Instagram",
+          "icon": "RiInstagramFill",
+          "url": "https://instagram.com/nanobanana.ai",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "icon": "RiDiscordFill",
+          "url": "https://discord.gg/nanobanana",
+          "target": "_blank"
+        },
+        {
+          "title": "Email",
+          "icon": "RiMailLine",
+          "url": "mailto:hello@nanobanana.ai",
+          "target": "_self"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "Privacy Policy",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "Terms of Service",
+          "url": "/terms-of-service"
+        }
+      ]
+    }
+  }
+}
