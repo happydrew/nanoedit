@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "./theme.css";
 
+@theme {
+  --default-transition-duration: 150ms;
+}
+
+@variant dark (.dark &);
+
 @plugin "tailwindcss-animate";
 
 @layer base {
