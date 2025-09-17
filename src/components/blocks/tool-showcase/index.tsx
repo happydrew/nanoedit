@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
 import Image from "next/image";
-import { ToolShowcase as ToolShowcaseType } from "@/types/blocks/tool-showcase";
+import { Showcase} from "@/types/blocks/showcase";
 import { useTranslations } from "next-intl";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { useState, useRef } from "react";
@@ -101,10 +101,10 @@ function VideoPlayer({ video }: VideoPlayerProps) {
   );
 }
 
-export default function ToolShowcase({ toolShowcase }: { toolShowcase: ToolShowcaseType }) {
+export default function ToolShowcase({ showcase }: { showcase: Showcase }) {
   const t = useTranslations();
 
-  if (toolShowcase.disabled) {
+  if (showcase.disabled) {
     return null;
   }
 
@@ -112,21 +112,21 @@ export default function ToolShowcase({ toolShowcase }: { toolShowcase: ToolShowc
     <section className="py-16 lg:py-24">
       <div className="container">
         {/* 标题部分 */}
-        {(toolShowcase.title || toolShowcase.description) && (
+        {(showcase.title || showcase.description) && (
           <div className="mx-auto mb-16 text-center max-w-3xl">
-            {toolShowcase.label && (
+            {showcase.label && (
               <Badge variant="outline" className="mb-4">
-                {toolShowcase.label}
+                {showcase.label}
               </Badge>
             )}
-            {toolShowcase.title && (
+            {showcase.title && (
               <h2 className="mb-6 text-3xl font-bold tracking-tight lg:text-4xl xl:text-5xl">
-                {toolShowcase.title}
+                {showcase.title}
               </h2>
             )}
-            {toolShowcase.description && (
+            {showcase.description && (
               <p className="text-lg text-muted-foreground lg:text-xl">
-                {toolShowcase.description}
+                {showcase.description}
               </p>
             )}
           </div>
@@ -134,7 +134,7 @@ export default function ToolShowcase({ toolShowcase }: { toolShowcase: ToolShowc
 
         {/* 工具展示项目 */}
         <div className="space-y-24">
-          {toolShowcase.items?.map((item, index) => (
+          {showcase.items?.map((item, index) => (
             <div
               key={index}
               className={`grid gap-12 lg:gap-16 items-center ${

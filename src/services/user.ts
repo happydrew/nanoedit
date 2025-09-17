@@ -13,22 +13,30 @@ import { getUuid } from "@/lib/hash";
 // save user to database, if user not exist, create a new user
 export async function saveUser(user: User) {
   try {
+    console.log("saveUser: starting with user", { email: user.email, uuid: user.uuid });
+    
     if (!user.email) {
+      console.error("saveUser: invalid user email");
       throw new Error("invalid user email");
     }
 
+    console.log("saveUser: checking if user exists by email", { email: user.email });
     const existUser = await findUserByEmail(user.email);
+    console.log("saveUser: existing user check result", { found: !!existUser, existingUuid: existUser?.uuid });
 
     if (!existUser) {
       // user not exist, create a new user
       if (!user.uuid) {
         user.uuid = getUuid();
+        console.log("saveUser: generated new UUID", { uuid: user.uuid });
       }
 
-      console.log("user to be inserted:", user);
+      console.log("saveUser: inserting new user to database", user);
 
       const dbUser = await insertUser(user as typeof users.$inferInsert);
+      console.log("saveUser: user inserted successfully", { uuid: dbUser?.uuid, email: dbUser?.email });
 
+      console.log("saveUser: increasing credits for new user", { user_uuid: user.uuid });
       // increase credits for new user, expire in one year
       await increaseCredits({
         user_uuid: user.uuid,
@@ -36,20 +44,29 @@ export async function saveUser(user: User) {
         credits: CreditsAmount.NewUserGet,
         expired_at: getOneYearLaterTimestr(),
       });
+      console.log("saveUser: credits increased successfully");
 
       user = {
         ...(dbUser as unknown as User),
       };
     } else {
       // user exist, return user info in db
+      console.log("saveUser: user exists, returning existing user", { uuid: existUser.uuid });
       user = {
         ...(existUser as unknown as User),
       };
     }
 
+    console.log("saveUser: completed successfully", { uuid: user.uuid, email: user.email });
     return user;
   } catch (e) {
-    console.log("save user failed: ", e);
+    console.error("saveUser: failed with error:", e);
+    console.error("saveUser: error details", {
+      userEmail: user?.email,
+      userUuid: user?.uuid,
+      errorMessage: e instanceof Error ? e.message : 'Unknown error',
+      errorStack: e instanceof Error ? e.stack : 'No stack trace'
+    });
     throw e;
   }
 }

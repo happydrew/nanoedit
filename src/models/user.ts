@@ -5,21 +5,52 @@ import { desc, eq, gte, inArray } from "drizzle-orm";
 export async function insertUser(
   data: typeof users.$inferInsert
 ): Promise<typeof users.$inferSelect | undefined> {
-  const [user] = await db().insert(users).values(data).returning();
-
-  return user;
+  try {
+    console.log("insertUser: attempting to insert user", { email: data.email, uuid: data.uuid });
+    
+    const [user] = await db().insert(users).values(data).returning();
+    
+    console.log("insertUser: user inserted successfully", { uuid: user?.uuid, email: user?.email });
+    return user;
+  } catch (e) {
+    console.error("insertUser: failed to insert user:", e);
+    console.error("insertUser: error details", {
+      email: data?.email,
+      uuid: data?.uuid,
+      errorMessage: e instanceof Error ? e.message : 'Unknown error',
+      errorStack: e instanceof Error ? e.stack : 'No stack trace'
+    });
+    throw e;
+  }
 }
 
 export async function findUserByEmail(
   email: string
 ): Promise<typeof users.$inferSelect | undefined> {
-  const [user] = await db()
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  try {
+    console.log("findUserByEmail: searching for user", { email });
+    
+    const [user] = await db()
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
 
-  return user;
+    console.log("findUserByEmail: search completed", { 
+      email, 
+      found: !!user, 
+      userUuid: user?.uuid 
+    });
+    return user;
+  } catch (e) {
+    console.error("findUserByEmail: failed to find user:", e);
+    console.error("findUserByEmail: error details", {
+      email,
+      errorMessage: e instanceof Error ? e.message : 'Unknown error',
+      errorStack: e instanceof Error ? e.stack : 'No stack trace'
+    });
+    throw e;
+  }
 }
 
 export async function findUserByUuid(

@@ -5,16 +5,36 @@ import { desc, eq, and, gte, asc } from "drizzle-orm";
 export async function insertCredit(
   data: typeof credits.$inferInsert
 ): Promise<typeof credits.$inferSelect | undefined> {
-  if (data.created_at && typeof data.created_at === "string") {
-    data.created_at = new Date(data.created_at);
-  }
-  if (data.expired_at && typeof data.expired_at === "string") {
-    data.expired_at = new Date(data.expired_at);
-  }
+  try {
+    console.log("insertCredit: starting with data", data);
+    
+    if (data.created_at && typeof data.created_at === "string") {
+      data.created_at = new Date(data.created_at);
+      console.log("insertCredit: converted created_at string to Date");
+    }
+    if (data.expired_at && typeof data.expired_at === "string") {
+      data.expired_at = new Date(data.expired_at);
+      console.log("insertCredit: converted expired_at string to Date");
+    }
 
-  const [credit] = await db().insert(credits).values(data).returning();
-
-  return credit;
+    console.log("insertCredit: inserting credit to database", data);
+    const [credit] = await db().insert(credits).values(data).returning();
+    
+    console.log("insertCredit: credit inserted successfully", { 
+      id: credit?.id, 
+      trans_no: credit?.trans_no,
+      user_uuid: credit?.user_uuid 
+    });
+    return credit;
+  } catch (e) {
+    console.error("insertCredit: failed to insert credit:", e);
+    console.error("insertCredit: error details", {
+      data,
+      errorMessage: e instanceof Error ? e.message : 'Unknown error',
+      errorStack: e instanceof Error ? e.stack : 'No stack trace'
+    });
+    throw e;
+  }
 }
 
 export async function findCreditByTransNo(

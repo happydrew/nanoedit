@@ -11,11 +11,19 @@ export async function handleSignInUser(
   account: Account
 ): Promise<UserType | null> {
   try {
+    console.log("handleSignInUser: starting", { email: user.email, provider: account.provider });
+    
     if (!user.email) {
-      throw new Error("invalid signin user");
+      console.error("handleSignInUser: user email is missing");
+      throw new Error("invalid signin user - missing email");
     }
     if (!account.type || !account.provider || !account.providerAccountId) {
-      throw new Error("invalid signin account");
+      console.error("handleSignInUser: account info incomplete", { 
+        type: account.type, 
+        provider: account.provider, 
+        providerAccountId: account.providerAccountId 
+      });
+      throw new Error("invalid signin account - missing required fields");
     }
 
     const userInfo: UserType = {
@@ -30,11 +38,24 @@ export async function handleSignInUser(
       signin_ip: await getClientIp(),
     };
 
+    console.log("handleSignInUser: user info prepared", { 
+      uuid: userInfo.uuid,
+      email: userInfo.email,
+      provider: userInfo.signin_provider 
+    });
+
     const savedUser = await saveUser(userInfo);
 
+    console.log("handleSignInUser: user saved successfully", { uuid: savedUser.uuid });
     return savedUser;
   } catch (e) {
-    console.error("handle signin user failed:", e);
+    console.error("handleSignInUser: failed with error:", e);
+    console.error("handleSignInUser: error details", {
+      userEmail: user?.email,
+      provider: account?.provider,
+      errorMessage: e instanceof Error ? e.message : 'Unknown error',
+      errorStack: e instanceof Error ? e.stack : 'No stack trace'
+    });
     throw e;
   }
 }

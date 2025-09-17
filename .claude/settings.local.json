@@ -8,7 +8,11 @@
       "Bash(npm install:*)",
       "Bash(pnpm add:*)",
       "Bash(npx tailwindcss:*)",
-      "Bash(pnpm list:*)"
+      "Bash(pnpm list:*)",
+      "Bash(pnpm store prune:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm config set:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

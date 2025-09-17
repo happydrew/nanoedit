@@ -53,7 +53,7 @@ export default async function LandingPage({
       {/* {page.benefit && <Feature2 section={page.benefit} />} */}
       {page.usage && <Feature3 section={page.usage} />}
       {page.feature && <Feature section={page.feature} />}
-      {page.toolShowcase && <ToolShowcase toolShowcase={page.toolShowcase} />}
+      {page.toolShowcase && <ToolShowcase showcase={page.toolShowcase} />}
       {page.showcase && <Showcase section={page.showcase} />}
       {page.stats && <Stats section={page.stats} />}
       {page.pricing && <Pricing pricing={page.pricing} />}

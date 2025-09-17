@@ -21,7 +21,7 @@ if (process.env.HTTP_PROXY || process.env.HTTPS_PROXY) {
     const { HttpsProxyAgent } = require('https-proxy-agent');
     proxyAgent = new HttpsProxyAgent(process.env.HTTPS_PROXY || process.env.HTTP_PROXY);
     console.log("Proxy agent configured:", process.env.HTTPS_PROXY || process.env.HTTP_PROXY);
-  } catch (error) {
+  } catch (error:any) {
     console.warn("Failed to setup proxy agent:", error.message);
   }
 }
@@ -211,12 +211,19 @@ export const authOptions: NextAuthConfig = {
       // Persist the OAuth access_token and or the user id to the token right after signin
       try {
         if (!user || !account) {
+          console.log("JWT callback: missing user or account", { hasUser: !!user, hasAccount: !!account });
           return token;
         }
 
+        console.log("JWT callback: processing sign in", { 
+          provider: account.provider, 
+          email: user.email,
+          userId: user.id 
+        });
+
         const userInfo = await handleSignInUser(user, account);
         if (!userInfo) {
-          throw new Error("save user failed");
+          throw new Error("handleSignInUser returned null");
         }
 
         token.user = {
@@ -227,10 +234,12 @@ export const authOptions: NextAuthConfig = {
           created_at: userInfo.created_at,
         };
 
+        console.log("JWT callback: user token created successfully", { uuid: userInfo.uuid });
         return token;
       } catch (e) {
-        console.error("jwt callback error:", e);
-        return token;
+        console.error("JWT callback error:", e);
+        console.error("JWT callback error stack:", e instanceof Error ? e.stack : 'No stack trace');
+        throw e; // Re-throw to see the actual error
       }
     },
   },

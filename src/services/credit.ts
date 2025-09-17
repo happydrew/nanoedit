@@ -116,6 +116,14 @@ export async function increaseCredits({
   order_no?: string;
 }) {
   try {
+    console.log("increaseCredits: starting", { 
+      user_uuid, 
+      trans_type, 
+      credits, 
+      expired_at, 
+      order_no 
+    });
+
     const new_credit: typeof creditsTable.$inferInsert = {
       trans_no: getSnowId(),
       created_at: new Date(getIsoTimestr()),
@@ -125,9 +133,21 @@ export async function increaseCredits({
       order_no: order_no || "",
       expired_at: expired_at ? new Date(expired_at) : null,
     };
+
+    console.log("increaseCredits: prepared credit data", new_credit);
+    
     await insertCredit(new_credit);
+    
+    console.log("increaseCredits: credit inserted successfully", { trans_no: new_credit.trans_no });
   } catch (e) {
-    console.log("increase credits failed: ", e);
+    console.error("increaseCredits: failed with error:", e);
+    console.error("increaseCredits: error details", {
+      user_uuid,
+      trans_type,
+      credits,
+      errorMessage: e instanceof Error ? e.message : 'Unknown error',
+      errorStack: e instanceof Error ? e.stack : 'No stack trace'
+    });
     throw e;
   }
 }
