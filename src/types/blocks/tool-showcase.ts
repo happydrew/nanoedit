@@ -12,7 +12,7 @@ export interface SectionItem {
   children?: SectionItem[];
 }
 
-export interface Showcase {
+export interface ToolShowcase {
   disabled?: boolean;
   name?: string;
   title?: string;

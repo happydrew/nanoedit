@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
 import Image from "next/image";
-import { Showcase} from "@/types/blocks/showcase";
+import { ToolShowcase} from "@/types/blocks/tool-showcase";
 import { useTranslations } from "next-intl";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { useState, useRef } from "react";
@@ -101,7 +101,7 @@ function VideoPlayer({ video }: VideoPlayerProps) {
   );
 }
 
-export default function ToolShowcase({ showcase }: { showcase: Showcase }) {
+export default function ToolShowcase({ showcase }: { showcase: ToolShowcase }) {
   const t = useTranslations();
 
   if (showcase.disabled) {
