@@ -3,6 +3,7 @@ import { Hero } from "@/types/blocks/hero";
 import { Section } from "@/types/blocks/section";
 import { Footer } from "@/types/blocks/footer";
 import { Pricing } from "@/types/blocks/pricing";
+import { ToolShowcase } from "@/types/blocks/tool-showcase";
 
 export interface LandingPage {
   header?: Header;
@@ -13,6 +14,7 @@ export interface LandingPage {
   usage?: Section;
   feature?: Section;
   showcase?: Section;
+  toolShowcase?: ToolShowcase;
   stats?: Section;
   pricing?: Pricing;
   testimonial?: Section;
