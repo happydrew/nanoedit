@@ -5,24 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
 import Image from "next/image";
-import { ToolShowcase} from "@/types/blocks/tool-showcase";
+import { ToolShowcase } from "@/types/blocks/tool-showcase";
 import { useTranslations } from "next-intl";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { useState, useRef } from "react";
+import { Video } from "@/types/blocks/base";
 
-interface VideoPlayerProps {
-  video: {
-    src: string;
-    poster?: string;
-    alt?: string;
-    autoplay?: boolean;
-    loop?: boolean;
-    muted?: boolean;
-    controls?: boolean;
-  };
-}
-
-function VideoPlayer({ video }: VideoPlayerProps) {
+function VideoPlayer({ video }: { video: Video }) {
   const t = useTranslations('common');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(video.muted ?? true);
@@ -64,7 +53,7 @@ function VideoPlayer({ video }: VideoPlayerProps) {
           {t('video_not_supported')}
         </p>
       </video>
-      
+
       {/* 视频控制层 */}
       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
         <div className="flex items-center gap-4">
@@ -101,32 +90,28 @@ function VideoPlayer({ video }: VideoPlayerProps) {
   );
 }
 
-export default function ToolShowcase({ showcase }: { showcase: ToolShowcase }) {
-  const t = useTranslations();
-
-  if (showcase.disabled) {
-    return null;
-  }
+export default function ToolShowcase({ toolShowcase }: { toolShowcase: ToolShowcase }) {
+  const t = useTranslations('common');
 
   return (
     <section className="py-16 lg:py-24">
       <div className="container">
         {/* 标题部分 */}
-        {(showcase.title || showcase.description) && (
+        {(toolShowcase.title || toolShowcase.description) && (
           <div className="mx-auto mb-16 text-center max-w-3xl">
-            {showcase.label && (
+            {toolShowcase.label && (
               <Badge variant="outline" className="mb-4">
-                {showcase.label}
+                {toolShowcase.label}
               </Badge>
             )}
-            {showcase.title && (
+            {toolShowcase.title && (
               <h2 className="mb-6 text-3xl font-bold tracking-tight lg:text-4xl xl:text-5xl">
-                {showcase.title}
+                {toolShowcase.title}
               </h2>
             )}
-            {showcase.description && (
+            {toolShowcase.description && (
               <p className="text-lg text-muted-foreground lg:text-xl">
-                {showcase.description}
+                {toolShowcase.description}
               </p>
             )}
           </div>
@@ -134,14 +119,13 @@ export default function ToolShowcase({ showcase }: { showcase: ToolShowcase }) {
 
         {/* 工具展示项目 */}
         <div className="space-y-24">
-          {showcase.items?.map((item, index) => (
+          {toolShowcase.items?.map((item, index) => (
             <div
               key={index}
-              className={`grid gap-12 lg:gap-16 items-center ${
-                item.reverse 
-                  ? "lg:grid-cols-2 lg:grid-flow-col-dense" 
-                  : "lg:grid-cols-2"
-              }`}
+              className={`grid gap-12 lg:gap-16 items-center ${item.reverse
+                ? "lg:grid-cols-2 lg:grid-flow-col-dense"
+                : "lg:grid-cols-2"
+                }`}
             >
               {/* 描述部分 */}
               <div className={`space-y-6 ${item.reverse ? "lg:col-start-2" : ""}`}>
@@ -150,7 +134,7 @@ export default function ToolShowcase({ showcase }: { showcase: ToolShowcase }) {
                     {item.badge}
                   </Badge>
                 )}
-                
+
                 <div className="space-y-4">
                   <h3 className="text-2xl font-bold tracking-tight lg:text-3xl">
                     {item.title}
@@ -168,9 +152,9 @@ export default function ToolShowcase({ showcase }: { showcase: ToolShowcase }) {
                         {feature.icon && (
                           <div className="flex-shrink-0 mt-1">
                             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
-                              <Icon 
-                                name={feature.icon} 
-                                className="h-3 w-3 text-primary" 
+                              <Icon
+                                name={feature.icon}
+                                className="h-3 w-3 text-primary"
                               />
                             </div>
                           </div>
@@ -206,7 +190,7 @@ export default function ToolShowcase({ showcase }: { showcase: ToolShowcase }) {
                           {button.icon && (
                             <Icon name={button.icon} className="mr-2 h-4 w-4" />
                           )}
-                          {button.text}
+                          {button.title}
                         </a>
                       </Button>
                     ))}

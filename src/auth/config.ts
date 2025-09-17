@@ -3,12 +3,8 @@ import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import { NextAuthConfig } from "next-auth";
 import { Provider } from "next-auth/providers/index";
-import { User } from "@/types/user";
-import { getClientIp } from "@/lib/ip";
-import { getIsoTimestr } from "@/lib/time";
-import { getUuid } from "@/lib/hash";
-import { saveUser } from "@/services/user";
 import { handleSignInUser } from "./handler";
+
 
 // Add proxy support for fetch requests
 const originalFetch = global.fetch;
@@ -21,7 +17,7 @@ if (process.env.HTTP_PROXY || process.env.HTTPS_PROXY) {
     const { HttpsProxyAgent } = require('https-proxy-agent');
     proxyAgent = new HttpsProxyAgent(process.env.HTTPS_PROXY || process.env.HTTP_PROXY);
     console.log("Proxy agent configured:", process.env.HTTPS_PROXY || process.env.HTTP_PROXY);
-  } catch (error:any) {
+  } catch (error: any) {
     console.warn("Failed to setup proxy agent:", error.message);
   }
 }
@@ -215,10 +211,10 @@ export const authOptions: NextAuthConfig = {
           return token;
         }
 
-        console.log("JWT callback: processing sign in", { 
-          provider: account.provider, 
+        console.log("JWT callback: processing sign in", {
+          provider: account.provider,
           email: user.email,
-          userId: user.id 
+          userId: user.id
         });
 
         const userInfo = await handleSignInUser(user, account);

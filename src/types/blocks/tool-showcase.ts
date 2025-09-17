@@ -1,25 +1,25 @@
-import { Image, Button } from "@/types/blocks/base";
+import { Image, Video, Button } from "@/types/blocks/base";
 
-export interface SectionItem {
+export interface CaseItem {
   title?: string;
   description?: string;
-  label?: string;
-  icon?: string;
+  badge?: string;
+  features?: CaseFeature[];
+  video?: Video;
   image?: Image;
   buttons?: Button[];
-  url?: string;
-  target?: string;
-  children?: SectionItem[];
+  reverse?: boolean;
+}
+
+export interface CaseFeature {
+  icon?: string;
+  title?: string;
+  description?: string;
 }
 
 export interface ToolShowcase {
-  disabled?: boolean;
-  name?: string;
   title?: string;
   description?: string;
   label?: string;
-  icon?: string;
-  image?: Image;
-  buttons?: Button[];
-  items?: SectionItem[];
+  items?: CaseItem[];
 }

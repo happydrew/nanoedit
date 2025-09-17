@@ -169,7 +169,7 @@ export default function PromptEngine({ className }: PromptEngineProps) {
         }
       }, 300000);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Image editing error:', error);
       setProgress(0);
       // You can show an error toast here

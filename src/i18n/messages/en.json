@@ -128,5 +128,70 @@
     "contact_tip": "Other ways to contact us",
     "rating_tip": "How do you feel about ShipAny?",
     "placeholder": "Leave your words here..."
+  },
+  "common": {
+    "video_not_supported": "Your browser does not support the video tag.",
+    "pause_video": "Pause",
+    "play_video": "Play",
+    "unmute_video": "Unmute",
+    "mute_video": "Mute",
+    "no_media_available": "No media available"
+  },
+  "promptEngine": {
+    "header": {
+      "title": "Prompt Engine",
+      "subtitle": "Transform your image with AI-powered editing"
+    },
+    "tabs": {
+      "imageToImage": "Image to Image",
+      "textToImage": "Text to Image"
+    },
+    "refImage": {
+      "title": "Reference Image",
+      "count": "{count}/{max}",
+      "upload": {
+        "ctaEmpty": "Add Image",
+        "ctaMore": "Add More Images",
+        "hint": "Max 50MB • Drag & drop or click to browse"
+      }
+    },
+    "mainPrompt": {
+      "title": "Main Prompt",
+      "placeholder": "Describe how you want to edit your image... (e.g., 'make it more vibrant', 'add a sunset background', 'convert to cartoon style')"
+    },
+    "buttons": {
+      "copy": "Copy",
+      "generate": "Generate Now",
+      "generating": "Generating..."
+    },
+    "status": {
+      "editing": "Editing your image...",
+      "hint": "Our AI is working its magic. This usually takes 30-60 seconds..."
+    },
+    "gallery": {
+      "title": "Output Gallery",
+      "subtitle": "Your ultra-fast AI creations appear here instantly",
+      "download": "Download"
+    },
+    "empty": {
+      "title": "Ready for instant generation",
+      "hintImageToImage": "Upload an image and enter your editing prompt to get started",
+      "hintTextToImage": "Enter your prompt and unleash the power of Nano Banana AI image editor"
+    }
+  },
+  "styleGallery": {
+    "section": {
+      "badge": "🔥 Trending Templates",
+      "title": "Most Popular AI Photo Editor Templates",
+      "description": "Discover trending social media styles powered by Nano Banana AI. Create viral-worthy content with our Gemini AI photo generator templates."
+    },
+    "slider": {
+      "before": "Before",
+      "after": "After"
+    },
+    "card": {
+      "trending": "🔥 Trending"
+    },
+    "loadMore": "Load More Templates"
   }
 }

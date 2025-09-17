@@ -31,6 +31,16 @@ export interface Image {
   className?: string;
 }
 
+export interface Video {
+  src?: string;
+  poster?: string;
+  alt?: string;
+  className?: string;
+  autoplay?: boolean;
+  loop?: boolean;
+  muted?: boolean;
+}
+
 export interface Brand {
   title?: string;
   description?: string;

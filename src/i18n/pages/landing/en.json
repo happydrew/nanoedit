@@ -249,7 +249,7 @@
         },
         "buttons": [
           {
-            "text": "Try Object Removal",
+            "title": "Try Object Removal",
             "url": "/editor?feature=removal",
             "variant": "default",
             "icon": "RiMagicLine"
@@ -287,7 +287,7 @@
         },
         "buttons": [
           {
-            "text": "Try Adding Objects",
+            "title": "Try Adding Objects",
             "url": "/editor?feature=addition",
             "variant": "default",
             "icon": "RiAddLine"
@@ -320,13 +320,13 @@
         },
         "buttons": [
           {
-            "text": "Change Backgrounds",
+            "title": "Change Backgrounds",
             "url": "/editor?feature=background",
             "variant": "default",
             "icon": "RiImageLine"
           },
           {
-            "text": "View Gallery",
+            "title": "View Gallery",
             "url": "/gallery/backgrounds",
             "variant": "outline",
             "icon": "RiGalleryLine"
