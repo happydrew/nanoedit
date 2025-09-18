@@ -11,7 +11,7 @@ import Showcase from "@/components/blocks/showcase";
 import Stats from "@/components/blocks/stats";
 import Testimonial from "@/components/blocks/testimonial";
 import ToolShowcase from "@/components/blocks/tool-showcase";
-import PromptEngine from "@/components/blocks/prompt-engine";
+import ImageEditor from "@/components/blocks/image-editor";
 import StyleGallery from "@/components/blocks/style-gallery";
 import { getLandingPage } from "@/services/page";
 
@@ -45,8 +45,8 @@ export default async function LandingPage({
   return (
     <>
       {page.hero && <Hero hero={page.hero} />}
-      {page.branding && <Branding section={page.branding} />}
-      <PromptEngine />
+      {/* {page.branding && <Branding section={page.branding} />} */}
+      <ImageEditor />
       <StyleGallery />
       {/* Temporarily commented out - will be added back later */}
       {/* {page.introduce && <Feature1 section={page.introduce} />} */}

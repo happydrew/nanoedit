@@ -7,14 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import Icon from "@/components/icon";
-import { Upload, ImageIcon, Zap, Copy, X, Loader2 } from "lucide-react";
+import { Upload, ImageIcon, Zap, Copy, X, Loader2, ChevronDown } from "lucide-react";
 import { useAppContext } from "@/contexts/app";
 import { useSession } from "next-auth/react";
 import { isAuthEnabled } from "@/lib/auth";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Image from "next/image";
 
-interface PromptEngineProps {
+interface ImageEditorProps {
   className?: string;
 }
 
@@ -25,17 +25,55 @@ interface GeneratedImage {
   createdAt: Date;
 }
 
-export default function PromptEngine({ className }: PromptEngineProps) {
+type AspectRatio = {
+  value: string;
+  label: string;
+};
+
+const aspectRatios: AspectRatio[] = [
+  { value: "auto", label: "Auto" },
+  { value: "1:1", label: "Square (1:1)" },
+  { value: "3:4", label: "Portrait (3:4)" },
+  { value: "9:16", label: "Portrait (9:16)" },
+  { value: "4:3", label: "Landscape (4:3)" },
+  { value: "16:9", label: "Landscape (16:9)" },
+];
+
+export default function ImageEditor({ className }: ImageEditorProps) {
   const { setShowSignModal } = useAppContext();
   const { data: session } = isAuthEnabled() ? useSession() : { data: null };
   const isLoggedIn = session && session.user;
   const [selectedTab, setSelectedTab] = useState("image-to-image");
   const [prompt, setPrompt] = useState("Make the image more vibrant and add dramatic lighting effects");
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("auto");
+  const [showAspectRatioDropdown, setShowAspectRatioDropdown] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const aspectRatioRef = useRef<HTMLDivElement>(null);
+
+  const selectedAspectLabel = useMemo(() => {
+    const found = aspectRatios.find((ar) => ar.value === selectedAspectRatio);
+    if (found) return found.label;
+    if (selectedAspectRatio === "auto") return "Auto";
+    return selectedAspectRatio || "Auto";
+  }, [selectedAspectRatio]);
+
+  // Close aspect ratio dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (aspectRatioRef.current && !aspectRatioRef.current.contains(event.target as Node)) {
+        setShowAspectRatioDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleImageUpload = useCallback((files: FileList) => {
     const newFiles = Array.from(files).slice(0, 9 - uploadedImages.length);
@@ -72,16 +110,26 @@ export default function PromptEngine({ className }: PromptEngineProps) {
     setProgress(0);
 
     try {
-      // Convert uploaded images to base64
-      let imageBase64 = '';
+      // Convert uploaded images to base64 array
+      let imageBase64Array: string[] = [];
       if (selectedTab === "image-to-image" && uploadedImages.length > 0) {
-        const file = uploadedImages[0]; // Use first image for editing
-        const reader = new FileReader();
-        imageBase64 = await new Promise<string>((resolve, reject) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
+        console.log(`Converting ${uploadedImages.length} images to base64...`);
+
+        // Convert all uploaded images to base64
+        const conversions = uploadedImages.map(async (file, index) => {
+          const reader = new FileReader();
+          return new Promise<string>((resolve, reject) => {
+            reader.onload = () => {
+              console.log(`Image ${index + 1} converted to base64`);
+              resolve(reader.result as string);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
         });
+
+        imageBase64Array = await Promise.all(conversions);
+        console.log(`Successfully converted ${imageBase64Array.length} images`);
       }
 
       // Simulate initial progress
@@ -102,9 +150,10 @@ export default function PromptEngine({ className }: PromptEngineProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          image: imageBase64,
+          images: imageBase64Array, // Send array of images
           prompt: prompt,
           mode: selectedTab,
+          aspectRatio: selectedAspectRatio, // Add aspect ratio
           // Add turnstile token if available
           turnstileToken: 'placeholder_token', // Replace with actual turnstile implementation
         }),
@@ -209,6 +258,16 @@ export default function PromptEngine({ className }: PromptEngineProps) {
   return (
     <section id="tool-section" className={`py-16 lg:py-24 ${className || ''}`}>
       <div className="container">
+        {/* Section Header */}
+        <div className="text-center mb-12 lg:mb-16">
+          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
+            AI Photo Editor for Viral Social Media Trends
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Transform your photos into viral content with our advanced <span className="text-primary font-medium">ai image editor</span>. Create trending styles, enhance image quality, and generate social media hits using cutting-edge <span className="text-primary font-medium">nano banana ai</span> technology. From background removal to style transformation, experience the power of <span className="text-primary font-medium">gemini ai photo generator</span> with <span className="text-primary font-medium">new gemini trend prompt</span> templates.
+          </p>
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
           {/* Prompt Engine */}
           <Card className="bg-card/50 border-border backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -219,10 +278,10 @@ export default function PromptEngine({ className }: PromptEngineProps) {
                 </div>
                 <div>
                   <CardTitle className="text-foreground text-xl font-bold">
-                    Prompt Engine
+                    AI Image Editor
                   </CardTitle>
                   <p className="text-muted-foreground text-sm mt-1">
-                    Transform your image with AI-powered editing
+                    Professional editing powered by advanced <span className="text-primary">nano banana ai</span>
                   </p>
                 </div>
               </div>
@@ -264,6 +323,8 @@ export default function PromptEngine({ className }: PromptEngineProps) {
                     multiple
                     accept="image/*"
                     className="hidden"
+                    aria-label="Upload reference images"
+                    title="Upload reference images"
                     onChange={(e) => e.target.files && handleImageUpload(e.target.files)}
                   />
 
@@ -327,15 +388,64 @@ export default function PromptEngine({ className }: PromptEngineProps) {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   className="min-h-[120px] bg-muted/80 ring-0 border-0 focus:border-0 focus:ring-0 focus:outline-none text-foreground placeholder:text-muted-foreground resize-none"
-                  placeholder="Describe how you want to edit your image... (e.g., 'make it more vibrant', 'add a sunset background', 'convert to cartoon style')"
+                  placeholder="Describe your vision... (e.g., 'vintage film style', 'trending TikTok aesthetic', 'apply new gemini trend prompt effects')"
                 />
-              </div>
 
-              {/* Copy Button */}
-              <Button variant="ghost" className="w-full text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors">
-                <Copy className="w-4 h-4 mr-2" />
-                Copy
-              </Button>
+                {/* Aspect Ratio Dropdown - positioned at bottom left of prompt */}
+                <div className="flex justify-start mt-3">
+                  <div className="relative" ref={aspectRatioRef}>
+                    <button
+                      type="button"
+                      onClick={() => setShowAspectRatioDropdown(!showAspectRatioDropdown)}
+                      className="bg-muted/80 rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted/90 transition-colors flex items-center gap-2"
+                    >
+                      {selectedAspectRatio !== 'auto' && (
+                        <div className={`border border-foreground ${selectedAspectRatio === '1:1' ? 'w-3 h-3' :
+                          selectedAspectRatio === '3:4' ? 'w-2.5 h-3' :
+                            selectedAspectRatio === '9:16' ? 'w-1.5 h-3' :
+                              selectedAspectRatio === '4:3' ? 'w-4 h-3' :
+                                selectedAspectRatio === '16:9' ? 'w-5 h-3' : 'w-3 h-3'
+                          }`} />
+                      )}
+                      <span>
+                        {selectedAspectLabel}
+                      </span>
+                    </button>
+
+                    {showAspectRatioDropdown && (
+                      <div className="absolute top-full left-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-10 backdrop-blur-md">
+                        {aspectRatios.map((ratio) => (
+                          <button
+                            key={ratio.value}
+                            type="button"
+                            onClick={() => {
+                              setSelectedAspectRatio(ratio.value);
+                              setShowAspectRatioDropdown(false);
+                            }}
+                            className={`w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors first:rounded-t-md last:rounded-b-md flex items-center gap-2 ${selectedAspectRatio === ratio.value
+                              ? 'bg-primary/10 text-primary'
+                              : 'text-popover-foreground'
+                              }`}
+                          >
+                            {ratio.value !== 'auto' && (
+                              <div className={`border ${selectedAspectRatio === ratio.value ? 'border-primary' : 'border-foreground'
+                                } ${ratio.value === '1:1' ? 'w-3 h-3' :
+                                  ratio.value === '3:4' ? 'w-3 h-4' :
+                                    ratio.value === '9:16' ? 'w-2.25 h-4' :
+                                      ratio.value === '4:3' ? 'w-4 h-3' :
+                                        ratio.value === '16:9' ? 'w-4 h-2.25' : 'w-3 h-3'
+                                }`} />
+                            )}
+                            <span className="whitespace-nowrap">
+                              {ratio.label}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
 
               {/* Generate Button */}
               <Button
@@ -370,10 +480,10 @@ export default function PromptEngine({ className }: PromptEngineProps) {
                 </div>
                 <div>
                   <CardTitle className="text-foreground text-xl font-bold">
-                    Output Gallery
+                    Your Creations
                   </CardTitle>
                   <p className="text-muted-foreground text-sm mt-1">
-                    Your ultra-fast AI creations appear here instantly
+                    Viral-ready content generated with <span className="text-primary">gemini ai photo generator</span>
                   </p>
                 </div>
               </div>
@@ -386,7 +496,7 @@ export default function PromptEngine({ className }: PromptEngineProps) {
                   <div className="flex items-center gap-3 mb-4">
                     <Loader2 className="w-5 h-5 animate-spin text-primary" />
                     <span className="text-sm font-medium text-foreground">
-                      Editing your image...
+                      Creating viral content...
                     </span>
                     <span className="text-sm text-muted-foreground ml-auto">
                       {Math.round(progress)}%
@@ -400,7 +510,7 @@ export default function PromptEngine({ className }: PromptEngineProps) {
                       <ImageIcon className="w-8 h-8 text-primary animate-pulse" />
                     </div>
                     <p className="text-muted-foreground text-sm max-w-sm">
-                      Our AI is working its magic. This usually takes 30-60 seconds...
+                      Our <span className="text-primary">ai foto editor</span> is crafting your perfect social media content...
                     </p>
                   </div>
                 </div>
@@ -455,12 +565,12 @@ export default function PromptEngine({ className }: PromptEngineProps) {
                     <ImageIcon className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground mb-2">
-                    Ready for instant generation
+                    Ready to Go Viral?
                   </h3>
                   <p className="text-muted-foreground max-w-sm">
                     {selectedTab === "image-to-image"
-                      ? "Upload an image and enter your editing prompt to get started"
-                      : "Enter your prompt and unleash the power of Nano Banana AI image editor"
+                      ? "Upload your photos (up to 9 images) and describe your dream style. Our ai photo editor powered by nano banana ai will transform them into trending content."
+                      : "Describe your vision and watch our ai image editor create viral-ready content with cutting-edge technology."
                     }
                   </p>
                 </div>

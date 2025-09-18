@@ -19,6 +19,13 @@ import { NavItem } from "@/types/blocks/base";
 
 export default function SignUser({ user }: { user: User }) {
   const t = useTranslations();
+  console.log(JSON.stringify(user));
+
+  const initial = React.useMemo(() => {
+    const source = user?.nickname || user?.email || "";
+    const char = source.trim().charAt(0);
+    return char ? char.toUpperCase() : "?";
+  }, [user?.nickname, user?.email]);
 
   const dropdownItems: NavItem[] = [
     {
@@ -43,7 +50,9 @@ export default function SignUser({ user }: { user: User }) {
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
           <AvatarImage src={user.avatar_url} alt={user.nickname} />
-          <AvatarFallback>{user.nickname}</AvatarFallback>
+          <AvatarFallback className="bg-blue-600 text-white font-medium">
+            {initial}
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="mx-4 bg-background">

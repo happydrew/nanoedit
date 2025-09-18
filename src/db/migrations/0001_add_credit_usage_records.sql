@@ -1,4 +1,4 @@
-CREATE TABLE "credit_usage_records" (
+CREATE TABLE "	" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "credit_usage_records_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"record_no" varchar(255) NOT NULL,
 	"user_uuid" varchar(255) NOT NULL,

@@ -29,15 +29,7 @@
         }
       ]
     },
-    "buttons": [
-      {
-        "title": "Try Free",
-        "icon": "RiPlayFill",
-        "url": "/editor",
-        "target": "_self",
-        "variant": "default"
-      }
-    ],
+    "buttons": [],
     "show_sign": true,
     "show_theme": true,
     "show_locale": true

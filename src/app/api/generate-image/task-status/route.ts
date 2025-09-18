@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
-    getCreditUsageRecordByNo,
+    getTaskById,
     markTaskAsSuccess,
     markTaskAsFailed
-} from '@/services/creditUsageRecord';
+} from '@/services/taskService';
 
 // export const runtime = "edge";
 
@@ -15,14 +15,14 @@ export async function GET(request: NextRequest) {
         const clientIp = forwardedFor ? forwardedFor.split(',')[0] : 'unknown';
         console.log(`request ip: ${clientIp}`);
 
-        // 从URL参数获取taskId和recordNo
+        // 从URL参数获取taskId和我们的内部taskId
         const url = new URL(request.url);
-        const taskId = url.searchParams.get('taskId');
-        const recordNo = url.searchParams.get('recordNo');
+        const externalTaskId = url.searchParams.get('taskId');
+        const internalTaskId = url.searchParams.get('recordNo'); // 现在这个是我们的内部任务ID
 
-        console.log(`taskId: ${taskId}, recordNo: ${recordNo}`);
+        console.log(`externalTaskId: ${externalTaskId}, internalTaskId: ${internalTaskId}`);
 
-        if (!taskId) {
+        if (!externalTaskId) {
             return NextResponse.json(
                 { error: 'Missing taskId parameter' },
                 { status: 400 }
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
         }
 
         // 调用Kie.ai API查询任务状态
-        const apiResponse = await fetch(`https://api.kie.ai/v1/recordInfo?taskId=${taskId}`, {
+        const apiResponse = await fetch(`https://api.kie.ai/v1/recordInfo?taskId=${externalTaskId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
@@ -66,15 +66,13 @@ export async function GET(request: NextRequest) {
 
         // 根据状态返回不同的响应
         if (taskResp.status === 'succeeded') {
-            // 如果有recordNo，更新积分使用记录为成功状态
-            if (recordNo) {
+            // 如果有内部任务ID，更新任务状态为成功
+            if (internalTaskId) {
                 try {
-                    await markTaskAsSuccess(recordNo, {
-                        imageUrl: taskResp.result?.urls?.[0] || taskResp.result,
-                        completedAt: new Date()
-                    });
+                    await markTaskAsSuccess(internalTaskId);
+                    console.log(`Task ${internalTaskId} marked as success`);
                 } catch (recordError) {
-                    console.error('Failed to update credit usage record:', recordError);
+                    console.error('Failed to update task status:', recordError);
                 }
             }
 
@@ -93,12 +91,13 @@ export async function GET(request: NextRequest) {
                 message: 'Image editing in progress, please check later'
             });
         } else if (taskResp.status === 'failed') {
-            // 如果有recordNo，更新积分使用记录为失败状态
-            if (recordNo) {
+            // 如果有内部任务ID，更新任务状态为失败
+            if (internalTaskId) {
                 try {
-                    await markTaskAsFailed(recordNo, taskResp.error || 'Image editing failed');
+                    await markTaskAsFailed(internalTaskId, taskResp.error || 'Image editing failed');
+                    console.log(`Task ${internalTaskId} marked as failed`);
                 } catch (recordError) {
-                    console.error('Failed to update credit usage record:', recordError);
+                    console.error('Failed to update task status:', recordError);
                 }
             }
 

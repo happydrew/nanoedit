@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { useState, useRef, useCallback } from "react";
-import { useTheme } from "next-themes";
 
 interface ExampleStyle {
   id: string;
@@ -102,7 +101,7 @@ function ComparisonSlider({ originalImage, editedImage, title, aspectRatio, defa
           className="object-cover"
           sizes={aspectRatio === "horizontal" ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 100vw, 25vw"}
         />
-        <div className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
+        <div className="absolute left-1 top-1/2 transform -translate-y-1/2 bg-black/50 text-white px-2 py-1 rounded text-xs font-medium">
           Before
         </div>
       </div>
@@ -119,7 +118,7 @@ function ComparisonSlider({ originalImage, editedImage, title, aspectRatio, defa
           className="object-cover"
           sizes={aspectRatio === "horizontal" ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 100vw, 25vw"}
         />
-        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
+        <div className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-black/50 text-white px-2 py-1 rounded text-xs font-medium">
           After
         </div>
       </div>
@@ -236,11 +235,11 @@ export default function StyleGallery({ className }: StyleGalleryProps) {
                     defaultSliderPosition={style.defaultSliderPosition}
                   />
 
-                  {style.trending && (
+                  {/* {style.trending && (
                     <Badge className="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white z-20">
                       🔥 Trending
                     </Badge>
-                  )}
+                  )} */}
 
                 </div>
 

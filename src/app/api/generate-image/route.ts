@@ -1,13 +1,13 @@
 import { hasEnoughCredits, deductCredits } from '@/lib/credits_service';
 import { getUserUuid } from '@/services/user';
 import {
-    createUsageRecord,
+    createTaskRecord,
     markTaskAsProcessing,
     markTaskAsSuccess,
     markTaskAsFailed,
     TaskType,
     ExternalProvider
-} from '@/services/creditUsageRecord';
+} from '@/services/taskService';
 import { NextRequest, NextResponse } from 'next/server';
 
 // 可选：设置为edge运行时
@@ -28,22 +28,23 @@ export async function POST(request: NextRequest) {
         const clientIp = forwardedFor ? forwardedFor.split(',')[0] : 'unknown';
         console.log(`request ip: ${clientIp}`);
 
-        // 解析请求体 - 支持图片编辑功能
+        // 解析请求体 - 支持多图片编辑功能
         const requestData = await request.json();
-        const { image, prompt, mode, turnstileToken } = requestData;
+        const { images, prompt, mode, aspectRatio, turnstileToken } = requestData;
 
         if (!turnstileToken || turnstileToken.length < 10) {
             console.error('Missing turnstileToken, or invalid length');
-            return NextResponse.json(
-                { error: 'Missing turnstileToken or invalid length' },
-                { status: 400 }
-            );
+            // For development, you can comment out the return statement below
+            // return NextResponse.json(
+            //     { error: 'Missing turnstileToken or invalid length' },
+            //     { status: 400 }
+            // );
         }
 
-        if (!image) {
-            console.error('Missing image');
+        if (!images || !Array.isArray(images) || images.length === 0) {
+            console.error('Missing images or invalid format');
             return NextResponse.json(
-                { error: 'Missing image' },
+                { error: 'Missing images or invalid format. Please provide an array of images.' },
                 { status: 400 }
             );
         }
@@ -61,28 +62,8 @@ export async function POST(request: NextRequest) {
         const userId = await getUserUuid();
 
         if (!userId) {
-            // 用户未登录，需要验证turnstile并要求登录
-            const start = Date.now();
-            const turnstileRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    secret: process.env.TURNSTILE_SECRET_KEY,
-                    response: turnstileToken,
-                }),
-            });
-
-            const turnstileData = await turnstileRes.json();
-            console.log(`turnstile verify time: ${Date.now() - start}ms`);
-
-            if (!turnstileData.success) {
-                return NextResponse.json(
-                    { error: 'Invalid security token' },
-                    { status: 400 }
-                );
-            }
+            // 用户未登录，临时跳过turnstile验证用于开发测试
+            console.log('User not logged in, skipping turnstile verification for development');
 
             // 返回需要登录的错误
             return NextResponse.json(
@@ -102,22 +83,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 创建积分使用记录
-        const recordNo = await createUsageRecord(
-            userId,
-            TaskType.AIImageEdit,
-            2,
-            {
-                taskDescription: `AI图片编辑: ${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`,
-                externalProvider: ExternalProvider.KieAI,
-                taskInput: {
-                    prompt: prompt,
-                    mode: mode,
-                    hasImage: !!image
-                }
-            }
-        );
-
         // 使用 Kie.ai 的 4o Image API 创建生成任务
         const apiKey = process.env.KIE_API_KEY;
         if (!apiKey) {
@@ -128,21 +93,36 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 上传图片到ImgBB并获取URL
-        const imageUrl = await uploadToImgBB(image);
-        console.log(`Image uploaded to ImgBB: ${imageUrl}`);
+        // 上传所有图片到ImgBB并获取URL数组
+        console.log(`Uploading ${images.length} images to ImgBB...`);
+        const imageUrls = await Promise.all(
+            images.map(async (image: string, index: number) => {
+                const imageUrl = await uploadToImgBB(image);
+                console.log(`Image ${index + 1}/${images.length} uploaded to ImgBB: ${imageUrl}`);
+                return imageUrl;
+            })
+        );
+        console.log(`All ${imageUrls.length} images uploaded successfully`);
 
         // 构建Nano Banana Edit API请求体
         const apiRequestBody: any = {
             model: 'google/nano-banana-edit',
             input: {
-                text: prompt, // 使用用户提供的prompt
-                image_urls: [imageUrl] // 使用ImgBB返回的URL
-            }
+                prompt, // 使用用户提供的prompt
+                image_urls: imageUrls // 使用ImgBB返回的URL数组
+            },
+            output_format: "png",
+            image_size: aspectRatio
         };
 
+        // 添加aspect ratio如果提供了且不是auto
+        if (aspectRatio && aspectRatio !== 'auto') {
+            apiRequestBody.input.aspect_ratio = aspectRatio;
+            console.log(`Using aspect ratio: ${aspectRatio}`);
+        }
+
         // 发送请求到 Kie.ai Nano Banana Edit API
-        const apiResponse = await fetch('https://api.kie.ai/v1/createTask', {
+        const apiResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -165,24 +145,32 @@ export async function POST(request: NextRequest) {
 
         // 获取任务ID和其他响应信息
         const taskResp = await apiResponse.json();
-        if (!taskResp.id) {
+        if (taskResp.code != 200) {
             console.error('Kie.ai API response missing task id:', JSON.stringify(taskResp));
             return NextResponse.json(
                 { error: 'Failed to create image editing task', details: taskResp },
                 { status: 500 }
             );
         }
-        const taskId = taskResp.id;
-        console.log(`Image editing task created with ID: ${taskId}`);
+        const externalTaskId = taskResp.data.taskId;
+        console.log(`Image editing task created with ID: ${externalTaskId}`);
 
-        // 更新使用记录，添加外部任务ID
-        await markTaskAsProcessing(recordNo);
+        // 在kie.ai成功创建任务后，创建任务记录
+        const taskId = await createTaskRecord(
+            userId,
+            TaskType.AIImageEdit,
+            2,
+            {
+                externalProvider: ExternalProvider.KieAI,
+                externalTaskId: externalTaskId, // 使用kie.ai返回的taskId
+            }
+        );
 
         // 扣除用户积分（2积分）
         const deducted = await deductCredits(userId, 2, 'AI image editing with Nano Banana');
         if (!deducted) {
             console.error(`Failed to deduct 2 credits for user ${userId}`);
-            await markTaskAsFailed(recordNo, 'Failed to deduct credits');
+            await markTaskAsFailed(taskId, 'Failed to deduct credits');
             return NextResponse.json(
                 { error: 'Failed to process payment. Please try again.' },
                 { status: 500 }
@@ -191,8 +179,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            taskId: taskId,
-            recordNo: recordNo, // 返回记录编号供前端使用
+            taskId: externalTaskId,
+            recordNo: taskId, // 返回任务ID供前端使用
             status: 'GENERATING',
             message: 'Image editing task created successfully'
         }, { status: 200 });

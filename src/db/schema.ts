@@ -129,23 +129,17 @@ export const feedbacks = pgTable("feedbacks", {
   rating: integer(),
 });
 
-// Credit Usage Records table - 积分使用记录表
-export const creditUsageRecords = pgTable("credit_usage_records", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  record_no: varchar({ length: 255 }).notNull().unique(), // 记录编号
+// Tasks table - 任务表（原积分使用记录表）
+export const tasks = pgTable("tasks", {
+  id: varchar({ length: 255 }).primaryKey().notNull(), // 任务ID（原record_no）
   user_uuid: varchar({ length: 255 }).notNull(), // 用户UUID
   task_type: varchar({ length: 100 }).notNull(), // 任务类型（ai_image_edit, ai_text_generation等）
-  task_description: varchar({ length: 500 }), // 任务描述
   credits_consumed: integer().notNull(), // 消耗的积分
   credits_remaining: integer().notNull(), // 操作后剩余积分
   task_status: varchar({ length: 50 }).notNull(), // 任务状态（pending, success, failed, cancelled）
   external_task_id: varchar({ length: 255 }), // 第三方API任务ID（如kie.ai的taskId）
   external_provider: varchar({ length: 100 }), // 第三方服务提供商（kie.ai, openai等）
-  task_input: text(), // 任务输入内容（prompt等，JSON格式）
-  task_output: text(), // 任务输出结果（生成的图片URL等，JSON格式）
   error_message: text(), // 错误信息（如果失败）
-  started_at: timestamp({ withTimezone: true }), // 任务开始时间
-  completed_at: timestamp({ withTimezone: true }), // 任务完成时间
   created_at: timestamp({ withTimezone: true }), // 记录创建时间
   updated_at: timestamp({ withTimezone: true }), // 记录更新时间
 });
