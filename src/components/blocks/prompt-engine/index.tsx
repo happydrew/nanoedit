@@ -8,6 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import Icon from "@/components/icon";
 import { Upload, ImageIcon, Zap, Copy, X, Loader2 } from "lucide-react";
+import { useAppContext } from "@/contexts/app";
+import { useSession } from "next-auth/react";
+import { isAuthEnabled } from "@/lib/auth";
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 
@@ -23,6 +26,9 @@ interface GeneratedImage {
 }
 
 export default function PromptEngine({ className }: PromptEngineProps) {
+  const { setShowSignModal } = useAppContext();
+  const { data: session } = isAuthEnabled() ? useSession() : { data: null };
+  const isLoggedIn = session && session.user;
   const [selectedTab, setSelectedTab] = useState("image-to-image");
   const [prompt, setPrompt] = useState("Make the image more vibrant and add dramatic lighting effects");
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
@@ -55,6 +61,12 @@ export default function PromptEngine({ className }: PromptEngineProps) {
 
   const generateImage = useCallback(async () => {
     if (!isFormValid || isGenerating) return;
+
+    // 检查用户登录状态
+    if (!isLoggedIn) {
+      setShowSignModal(true);
+      return;
+    }
 
     setIsGenerating(true);
     setProgress(0);
@@ -100,7 +112,16 @@ export default function PromptEngine({ className }: PromptEngineProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to start image editing');
+
+        // Handle specific error codes
+        if (errorData.code === 'LOGIN_REQUIRED') {
+          setShowSignModal(true);
+          throw new Error('Please sign in to use AI image editing');
+        } else if (errorData.code === 'INSUFFICIENT_CREDITS') {
+          throw new Error('Insufficient credits. You need at least 2 credits for AI image editing.');
+        } else {
+          throw new Error(errorData.error || 'Failed to start image editing');
+        }
       }
 
       const result = await response.json();
@@ -177,7 +198,7 @@ export default function PromptEngine({ className }: PromptEngineProps) {
     } finally {
       setIsGenerating(false);
     }
-  }, [isFormValid, isGenerating, prompt, selectedTab, uploadedImages]);
+  }, [isFormValid, isGenerating, prompt, selectedTab, uploadedImages, isLoggedIn, setShowSignModal]);
 
   return (
     <section id="tool-section" className={`py-16 lg:py-24 ${className || ''}`}>

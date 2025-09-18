@@ -15,11 +15,13 @@ export enum CreditsTransType {
   OrderPay = "order_pay", // user pay for credits
   SystemAdd = "system_add", // system add credits
   Ping = "ping", // cost for ping api
+  AIImageEdit = "ai_image_edit", // cost for AI image editing
 }
 
 export enum CreditsAmount {
   NewUserGet = 10,
   PingCost = 1,
+  AIImageEditCost = 2,
 }
 
 export async function getUserCredits(user_uuid: string): Promise<UserCredits> {

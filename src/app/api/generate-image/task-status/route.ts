@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import {
+    getCreditUsageRecordByNo,
+    markTaskAsSuccess,
+    markTaskAsFailed
+} from '@/services/creditUsageRecord';
 
 // export const runtime = "edge";
 
@@ -10,11 +15,12 @@ export async function GET(request: NextRequest) {
         const clientIp = forwardedFor ? forwardedFor.split(',')[0] : 'unknown';
         console.log(`request ip: ${clientIp}`);
 
-        // 从URL参数获取taskId
+        // 从URL参数获取taskId和recordNo
         const url = new URL(request.url);
         const taskId = url.searchParams.get('taskId');
+        const recordNo = url.searchParams.get('recordNo');
 
-        console.log(`taskId: ${taskId}`);
+        console.log(`taskId: ${taskId}, recordNo: ${recordNo}`);
 
         if (!taskId) {
             return NextResponse.json(
@@ -91,11 +97,11 @@ export async function GET(request: NextRequest) {
             });
         }
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('API error:', error);
         return NextResponse.json({
             success: false,
-            error: error.message || 'Failed to check image editing task status'
+            error: error instanceof Error ? error.message : 'Failed to check image editing task status'
         }, { status: 500 });
     }
 } 

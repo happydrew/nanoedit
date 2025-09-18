@@ -1,5 +1,13 @@
-import { supabaseAdmin } from '@/lib/supabase_service';
-import { hasEnoughCredits, deductCredits } from '@lib/credits_service';
+import { hasEnoughCredits, deductCredits } from '@/lib/credits_service';
+import { getUserUuid } from '@/services/user';
+import {
+    createUsageRecord,
+    markTaskAsProcessing,
+    markTaskAsSuccess,
+    markTaskAsFailed,
+    TaskType,
+    ExternalProvider
+} from '@/services/creditUsageRecord';
 import { NextRequest, NextResponse } from 'next/server';
 
 // 可选：设置为edge运行时
@@ -22,7 +30,7 @@ export async function POST(request: NextRequest) {
 
         // 解析请求体 - 支持图片编辑功能
         const requestData = await request.json();
-        const { image, prompt, mode, turnstileToken, accessToken } = requestData;
+        const { image, prompt, mode, turnstileToken } = requestData;
 
         if (!turnstileToken || turnstileToken.length < 10) {
             console.error('Missing turnstileToken, or invalid length');
@@ -48,33 +56,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 验证 Turnstile token 并检查用户点数
-        let userId = null;
+        // 检查用户登录状态和积分
+        // 使用项目现有的用户认证系统（支持NextAuth session和API key）
+        const userId = await getUserUuid();
 
-        if (accessToken) {
-            // 验证 token 并获取用户ID
-            const { data: { user }, error } = await supabaseAdmin.auth.getUser(accessToken);
-
-            if (error || !user) {
-                return NextResponse.json(
-                    { error: 'Invalid access token' },
-                    { status: 401 }
-                );
-            }
-
-            userId = user.id;
-            console.log(`User ${userId} logged in`);
-
-            // 检查用户点数是否大于0
-            const hasCredits = await hasEnoughCredits(userId, 1);
-            if (!hasCredits) {
-                return NextResponse.json(
-                    { error: 'Insufficient credits', code: 'INSUFFICIENT_CREDITS' },
-                    { status: 402 }
-                );
-            }
-        } else {
-            // 允许未登录用户使用（需要验证turnstile）
+        if (!userId) {
+            // 用户未登录，需要验证turnstile并要求登录
             const start = Date.now();
             const turnstileRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
                 method: 'POST',
@@ -82,7 +69,7 @@ export async function POST(request: NextRequest) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    secret: process.env.TURNSTILE_SECRET_KEY,  // 在环境变量中设置
+                    secret: process.env.TURNSTILE_SECRET_KEY,
                     response: turnstileToken,
                 }),
             });
@@ -96,8 +83,40 @@ export async function POST(request: NextRequest) {
                     { status: 400 }
                 );
             }
-            console.log('User not logged in, proceeding with free generation');
+
+            // 返回需要登录的错误
+            return NextResponse.json(
+                { error: 'Login required. Please sign in to use AI image editing.', code: 'LOGIN_REQUIRED' },
+                { status: 401 }
+            );
         }
+
+        console.log(`User ${userId} is logged in`);
+
+        // 检查用户积分是否足够（AI图片编辑需要2积分）
+        const hasCredits = await hasEnoughCredits(userId, 2);
+        if (!hasCredits) {
+            return NextResponse.json(
+                { error: 'Insufficient credits. You need at least 2 credits for AI image editing.', code: 'INSUFFICIENT_CREDITS' },
+                { status: 402 }
+            );
+        }
+
+        // 创建积分使用记录
+        const recordNo = await createUsageRecord(
+            userId,
+            TaskType.AIImageEdit,
+            2,
+            {
+                taskDescription: `AI图片编辑: ${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`,
+                externalProvider: ExternalProvider.KieAI,
+                taskInput: {
+                    prompt: prompt,
+                    mode: mode,
+                    hasImage: !!image
+                }
+            }
+        );
 
         // 使用 Kie.ai 的 4o Image API 创建生成任务
         const apiKey = process.env.KIE_API_KEY;
@@ -156,18 +175,24 @@ export async function POST(request: NextRequest) {
         const taskId = taskResp.id;
         console.log(`Image editing task created with ID: ${taskId}`);
 
-        // 如果是登录用户，此时先扣除积分
-        if (userId) {
-            const deducted = await deductCredits(userId, 1, 'AI image editing with Nano Banana');
-            if (!deducted) {
-                console.error(`Failed to deduct credit for user ${userId}`);
-                // 继续返回任务信息，但记录错误
-            }
+        // 更新使用记录，添加外部任务ID
+        await markTaskAsProcessing(recordNo);
+
+        // 扣除用户积分（2积分）
+        const deducted = await deductCredits(userId, 2, 'AI image editing with Nano Banana');
+        if (!deducted) {
+            console.error(`Failed to deduct 2 credits for user ${userId}`);
+            await markTaskAsFailed(recordNo, 'Failed to deduct credits');
+            return NextResponse.json(
+                { error: 'Failed to process payment. Please try again.' },
+                { status: 500 }
+            );
         }
 
         return NextResponse.json({
             success: true,
             taskId: taskId,
+            recordNo: recordNo, // 返回记录编号供前端使用
             status: 'GENERATING',
             message: 'Image editing task created successfully'
         }, { status: 200 });
@@ -196,39 +221,14 @@ async function uploadToImgBB(image: string): Promise<string> {
     }
 
     try {
-        // 方法1: 使用FormData (现代浏览器和Node.js环境)
-        const formData = new FormData();
-        formData.append('image', imageBase64);
-
-        const response = await fetch(`https://api.imgbb.com/1/upload?expiration=300&key=${imgbbApiKey}`, {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (!data.success || !data.data?.url) {
-            console.error('ImgBB API response invalid:', JSON.stringify(data));
-            throw new Error('Invalid response from ImgBB');
-        }
-
-        console.log('Image uploaded to ImgBB successfully');
-        return data.data.url;
-    } catch (error) {
-        console.error('Error using FormData method:', error);
-
-        // 方法2: 如果FormData方法失败，尝试使用URL编码方式
-        console.log('Trying alternative method for ImgBB upload...');
-
+        // 使用标准的 application/x-www-form-urlencoded 方式上传
+        // 这是ImgBB API推荐的方式，适用于服务器端环境
         const params = new URLSearchParams();
         params.append('key', imgbbApiKey);
         params.append('image', imageBase64);
-        params.append('expiration', '300');
+        params.append('expiration', '300'); // 5分钟后过期
 
-        const altResponse = await fetch('https://api.imgbb.com/1/upload', {
+        const response = await fetch('https://api.imgbb.com/1/upload', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -236,20 +236,40 @@ async function uploadToImgBB(image: string): Promise<string> {
             body: params
         });
 
-        if (!altResponse.ok) {
-            const errorData = await altResponse.json();
-            console.error('ImgBB API error (alt method):', JSON.stringify(errorData));
-            throw new Error('Failed to upload image to ImgBB');
+        console.log(`ImgBB API response status: ${response.status}`);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('ImgBB API error response:', errorText);
+            throw new Error(`ImgBB API error! status: ${response.status}`);
         }
 
-        const altData = await altResponse.json();
-        if (!altData.success || !altData.data?.url) {
-            console.error('ImgBB API response invalid (alt method):', JSON.stringify(altData));
-            throw new Error('Invalid response from ImgBB');
+        const data = await response.json();
+        console.log('ImgBB API response:', JSON.stringify(data));
+
+        if (!data.success) {
+            console.error('ImgBB API returned success: false:', JSON.stringify(data));
+            throw new Error(data.error?.message || 'ImgBB API returned success: false');
         }
 
-        console.log('Image uploaded to ImgBB successfully (alt method)');
-        return altData.data.url;
+        if (!data.data?.url) {
+            console.error('ImgBB API response missing URL:', JSON.stringify(data));
+            throw new Error('ImgBB API response missing image URL');
+        }
+
+        console.log(`Image uploaded to ImgBB successfully: ${data.data.url}`);
+        return data.data.url;
+
+    } catch (error) {
+        console.error('Failed to upload image to ImgBB:', error);
+
+        // 如果是网络错误，提供更详细的错误信息
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            throw new Error('Network error: Unable to connect to ImgBB API');
+        }
+
+        // 重新抛出原始错误
+        throw error;
     }
 }
 

@@ -12,7 +12,15 @@
       "Bash(pnpm store prune:*)",
       "Bash(pnpm install:*)",
       "Bash(pnpm config set:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(find:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pnpm dev:*)",
+      "WebFetch(domain:api.imgbb.com)",
+      "WebFetch(domain:imgbb.com)",
+      "WebSearch",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
