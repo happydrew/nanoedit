@@ -126,6 +126,7 @@ export default function PromptEngine({ className }: PromptEngineProps) {
 
       const result = await response.json();
       const taskId = result.taskId;
+      const recordNo = result.recordNo; // 获取记录编号
 
       clearInterval(progressInterval);
       setProgress(25);
@@ -133,7 +134,12 @@ export default function PromptEngine({ className }: PromptEngineProps) {
       // Poll for task completion
       const pollInterval = setInterval(async () => {
         try {
-          const statusResponse = await fetch(`/api/generate-image/task-status?taskId=${taskId}`);
+          // 传递recordNo给task-status API
+          const statusParams = new URLSearchParams({
+            taskId: taskId,
+            ...(recordNo && { recordNo: recordNo })
+          });
+          const statusResponse = await fetch(`/api/generate-image/task-status?${statusParams.toString()}`);
 
           if (!statusResponse.ok) {
             throw new Error('Failed to check task status');

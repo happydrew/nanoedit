@@ -20,7 +20,8 @@
       "WebFetch(domain:api.imgbb.com)",
       "WebFetch(domain:imgbb.com)",
       "WebSearch",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npx drizzle-kit:*)"
     ],
     "deny": [],
     "ask": []

@@ -66,6 +66,18 @@ export async function GET(request: NextRequest) {
 
         // 根据状态返回不同的响应
         if (taskResp.status === 'succeeded') {
+            // 如果有recordNo，更新积分使用记录为成功状态
+            if (recordNo) {
+                try {
+                    await markTaskAsSuccess(recordNo, {
+                        imageUrl: taskResp.result?.urls?.[0] || taskResp.result,
+                        completedAt: new Date()
+                    });
+                } catch (recordError) {
+                    console.error('Failed to update credit usage record:', recordError);
+                }
+            }
+
             // 如果生成成功，返回图像URL
             return NextResponse.json({
                 success: true,
@@ -81,6 +93,15 @@ export async function GET(request: NextRequest) {
                 message: 'Image editing in progress, please check later'
             });
         } else if (taskResp.status === 'failed') {
+            // 如果有recordNo，更新积分使用记录为失败状态
+            if (recordNo) {
+                try {
+                    await markTaskAsFailed(recordNo, taskResp.error || 'Image editing failed');
+                } catch (recordError) {
+                    console.error('Failed to update credit usage record:', recordError);
+                }
+            }
+
             // 如果生成失败，返回错误信息
             return NextResponse.json({
                 success: false,
