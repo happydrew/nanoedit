@@ -10,20 +10,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Calendar, Clock, CreditCard, Filter, Search, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { zhCN } from "date-fns/locale";
+import { useTranslations } from "next-intl";
 
-interface CreditUsageRecord {
-  id: number;
-  record_no: string;
+interface TaskRecord {
+  id: string;
   task_type: string;
-  task_description?: string;
   credits_consumed: number;
   credits_remaining: number;
   task_status: string;
   external_provider?: string;
   error_message?: string;
-  started_at?: string;
-  completed_at?: string;
   created_at?: string;
+  updated_at?: string;
 }
 
 interface PaginationInfo {
@@ -33,8 +31,8 @@ interface PaginationInfo {
   pages: number;
 }
 
-interface CreditUsageRecordsResponse {
-  records: CreditUsageRecord[];
+interface TasksResponse {
+  tasks: TaskRecord[];
   pagination: PaginationInfo;
 }
 
@@ -69,8 +67,9 @@ const getStatusBadgeVariant = (status: string) => {
   }
 };
 
-export default function CreditUsageRecords() {
-  const [records, setRecords] = useState<CreditUsageRecord[]>([]);
+export default function TaskManage() {
+  const t = useTranslations();
+  const [tasks, setTasks] = useState<TaskRecord[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo>({
     total: 0,
     page: 1,
@@ -84,8 +83,8 @@ export default function CreditUsageRecords() {
     page: 1
   });
 
-  // 获取积分使用记录
-  const fetchRecords = async () => {
+  // 获取任务列表
+  const fetchTasks = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -94,25 +93,25 @@ export default function CreditUsageRecords() {
       params.append('page', filters.page.toString());
       params.append('limit', '20');
 
-      const response = await fetch(`/api/credit-usage-records?${params.toString()}`);
+      const response = await fetch(`/api/tasks?${params.toString()}`);
       const result = await response.json();
 
       if (result.code === 0) {
-        const data: CreditUsageRecordsResponse = result.data;
-        setRecords(data.records);
+        const data: TasksResponse = result.data;
+        setTasks(data.tasks);
         setPagination(data.pagination);
       } else {
-        console.error('获取积分使用记录失败:', result.message);
+        console.error(t('tasks.errors.fetchFailed'), result.message);
       }
     } catch (error) {
-      console.error('获取积分使用记录错误:', error);
+      console.error(t('tasks.errors.fetchError'), error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchRecords();
+    fetchTasks();
   }, [filters]);
 
   const handleFilterChange = (key: string, value: string) => {
@@ -132,21 +131,13 @@ export default function CreditUsageRecords() {
     return format(new Date(dateStr), 'yyyy-MM-dd HH:mm:ss', { locale: zhCN });
   };
 
-  const formatDuration = (startedAt?: string, completedAt?: string) => {
-    if (!startedAt || !completedAt) return '-';
-    const start = new Date(startedAt);
-    const end = new Date(completedAt);
-    const seconds = Math.floor((end.getTime() - start.getTime()) / 1000);
-    return `${seconds}秒`;
-  };
-
   return (
     <div className="container mx-auto py-8">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5" />
-            积分使用记录
+            {t('tasks.my_tasks')}
           </CardTitle>
         </CardHeader>
 
@@ -155,107 +146,103 @@ export default function CreditUsageRecords() {
           <div className="flex gap-4 items-center">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4" />
-              <span className="text-sm font-medium">筛选:</span>
+              <span className="text-sm font-medium">{t('tasks.filters.label')}</span>
             </div>
 
             <Select value={filters.task_type} onValueChange={(value) => handleFilterChange('task_type', value)}>
               <SelectTrigger className="w-40">
-                <SelectValue placeholder="任务类型" />
+                <SelectValue placeholder={t('tasks.filters.task_type')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">全部类型</SelectItem>
-                <SelectItem value="ai_image_edit">AI图片编辑</SelectItem>
-                <SelectItem value="ai_text_generation">AI文本生成</SelectItem>
-                <SelectItem value="ai_video_generation">AI视频生成</SelectItem>
+                <SelectItem value="">{t('tasks.filters.all_types')}</SelectItem>
+                <SelectItem value="ai_image_edit">{t('tasks.task_types.ai_image_edit')}</SelectItem>
+                <SelectItem value="ai_text_generation">{t('tasks.task_types.ai_text_generation')}</SelectItem>
+                <SelectItem value="ai_video_generation">{t('tasks.task_types.ai_video_generation')}</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={filters.task_status} onValueChange={(value) => handleFilterChange('task_status', value)}>
               <SelectTrigger className="w-32">
-                <SelectValue placeholder="状态" />
+                <SelectValue placeholder={t('tasks.filters.status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">全部状态</SelectItem>
-                <SelectItem value="pending">等待中</SelectItem>
-                <SelectItem value="processing">处理中</SelectItem>
-                <SelectItem value="success">成功</SelectItem>
-                <SelectItem value="failed">失败</SelectItem>
-                <SelectItem value="cancelled">已取消</SelectItem>
+                <SelectItem value="">{t('tasks.filters.all_status')}</SelectItem>
+                <SelectItem value="pending">{t('tasks.task_status.pending')}</SelectItem>
+                <SelectItem value="processing">{t('tasks.task_status.processing')}</SelectItem>
+                <SelectItem value="success">{t('tasks.task_status.success')}</SelectItem>
+                <SelectItem value="failed">{t('tasks.task_status.failed')}</SelectItem>
+                <SelectItem value="cancelled">{t('tasks.task_status.cancelled')}</SelectItem>
               </SelectContent>
             </Select>
 
             <Button
               variant="outline"
               size="sm"
-              onClick={fetchRecords}
+              onClick={fetchTasks}
               disabled={loading}
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              刷新
+              {t('tasks.refresh')}
             </Button>
           </div>
 
-          {/* 记录表格 */}
+          {/* 任务表格 */}
           <div className="border rounded-lg">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>任务类型</TableHead>
-                  <TableHead>描述</TableHead>
-                  <TableHead>消耗积分</TableHead>
-                  <TableHead>剩余积分</TableHead>
-                  <TableHead>状态</TableHead>
-                  <TableHead>服务商</TableHead>
-                  <TableHead>耗时</TableHead>
-                  <TableHead>创建时间</TableHead>
+                  <TableHead>{t('tasks.table.task_id')}</TableHead>
+                  <TableHead>{t('tasks.table.task_type')}</TableHead>
+                  <TableHead>{t('tasks.table.credits_consumed')}</TableHead>
+                  <TableHead>{t('tasks.table.credits_remaining')}</TableHead>
+                  <TableHead>{t('tasks.table.status')}</TableHead>
+                  <TableHead>{t('tasks.table.created_at')}</TableHead>
+                  <TableHead>{t('tasks.table.updated_at')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {records.length === 0 ? (
+                {tasks.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      {loading ? '加载中...' : '暂无记录'}
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      {loading ? t('tasks.loading') : t('tasks.no_tasks')}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  records.map((record) => (
-                    <TableRow key={record.id}>
+                  tasks.map((task) => (
+                    <TableRow key={task.id}>
                       <TableCell>
-                        <div className="font-medium">
-                          {taskTypeLabels[record.task_type] || record.task_type}
+                        <div className="font-mono text-sm">
+                          {task.id}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="max-w-xs truncate" title={record.task_description}>
-                          {record.task_description || '-'}
+                        <div className="font-medium">
+                          {t(`tasks.task_types.${task.task_type}`)}
                         </div>
                       </TableCell>
                       <TableCell>
                         <span className="font-mono text-red-600">
-                          -{record.credits_consumed}
+                          -{task.credits_consumed}
                         </span>
                       </TableCell>
                       <TableCell>
                         <span className="font-mono">
-                          {record.credits_remaining}
+                          {task.credits_remaining}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getStatusBadgeVariant(record.task_status)}>
-                          {taskStatusLabels[record.task_status] || record.task_status}
+                        <Badge variant={getStatusBadgeVariant(task.task_status)}>
+                          {t(`tasks.task_status.${task.task_status}`)}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {record.external_provider || '-'}
-                      </TableCell>
-                      <TableCell>
                         <span className="text-sm text-muted-foreground">
-                          {formatDuration(record.started_at, record.completed_at)}
+                          {formatDate(task.created_at)}
                         </span>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-muted-foreground">
-                          {formatDate(record.created_at)}
+                          {formatDate(task.updated_at)}
                         </span>
                       </TableCell>
                     </TableRow>
@@ -269,7 +256,11 @@ export default function CreditUsageRecords() {
           {pagination.pages > 1 && (
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
-                共 {pagination.total} 条记录，第 {pagination.page} / {pagination.pages} 页
+                {t('tasks.pagination.total_tasks', {
+                  total: pagination.total,
+                  page: pagination.page,
+                  pages: pagination.pages
+                })}
               </div>
               <div className="flex gap-2">
                 <Button
@@ -278,7 +269,7 @@ export default function CreditUsageRecords() {
                   disabled={pagination.page <= 1}
                   onClick={() => handlePageChange(pagination.page - 1)}
                 >
-                  上一页
+                  {t('tasks.pagination.previous')}
                 </Button>
                 <Button
                   variant="outline"
@@ -286,7 +277,7 @@ export default function CreditUsageRecords() {
                   disabled={pagination.page >= pagination.pages}
                   onClick={() => handlePageChange(pagination.page + 1)}
                 >
-                  下一页
+                  {t('tasks.pagination.next')}
                 </Button>
               </div>
             </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { useState, useRef, useCallback } from "react";
+import { useTranslations } from "next-intl";
 
 interface ExampleStyle {
   id: string;
@@ -32,6 +33,7 @@ interface ComparisonSliderProps {
 }
 
 function ComparisonSlider({ originalImage, editedImage, title, aspectRatio, defaultSliderPosition = 50 }: ComparisonSliderProps) {
+  const t = useTranslations();
   const [sliderPosition, setSliderPosition] = useState(defaultSliderPosition);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
@@ -102,7 +104,7 @@ function ComparisonSlider({ originalImage, editedImage, title, aspectRatio, defa
           sizes={aspectRatio === "horizontal" ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 100vw, 25vw"}
         />
         <div className="absolute left-1 top-1/2 transform -translate-y-1/2 bg-black/50 text-white px-2 py-1 rounded text-xs font-medium">
-          Before
+          {t('styleGallery.slider.before')}
         </div>
       </div>
 
@@ -119,7 +121,7 @@ function ComparisonSlider({ originalImage, editedImage, title, aspectRatio, defa
           sizes={aspectRatio === "horizontal" ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 100vw, 25vw"}
         />
         <div className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-black/50 text-white px-2 py-1 rounded text-xs font-medium">
-          After
+          {t('styleGallery.slider.after')}
         </div>
       </div>
 
@@ -192,7 +194,7 @@ const exampleStyles: ExampleStyle[] = [
 ];
 
 export default function StyleGallery({ className }: StyleGalleryProps) {
-  // const { theme } = useTheme();
+  const t = useTranslations();
 
   return (
     <section id="examples" className={`py-16 lg:py-24 bg-transparent ${className || ''}`}>
@@ -203,13 +205,13 @@ export default function StyleGallery({ className }: StyleGalleryProps) {
             variant="outline"
             className='mb-4 border-opacity-50 bg-gradient-to-r dark:from-purple-900/20 dark:to-pink-900/20 dark:border-purple-600 dark:text-purple-300 from-purple-100 to-pink-100 border-purple-200 text-purple-700'
           >
-            🔥 Trending Templates
+            {t('styleGallery.section.badge')}
           </Badge>
           <h2 className='text-4xl font-bold tracking-tight mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent dark:from-white dark:to-gray-300 dark:bg-clip-text'>
-            Most Popular AI Photo Editor Templates
+            {t('styleGallery.section.title')}
           </h2>
           <p className='text-xl text-gray-600 dark:text-gray-300'>
-            Discover trending social media styles powered by Nano Banana AI. Create viral-worthy content with our Gemini AI photo generator templates.
+            {t('styleGallery.section.description')}
           </p>
         </div>
 
@@ -271,7 +273,7 @@ export default function StyleGallery({ className }: StyleGalleryProps) {
             variant="outline"
             className='dark:hover:bg-purple-900/20 dark:hover:border-purple-600 dark:border-gray-600 dark:text-gray-300 dark:hover:text-purple-300 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700'
           >
-            Load More Templates
+            {t('styleGallery.loadMore')}
           </Button>
         </div>
       </div>

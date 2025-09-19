@@ -193,5 +193,114 @@
       "trending": "🔥 Trending"
     },
     "loadMore": "Load More Templates"
+  },
+  "tasks": {
+    "my_tasks": "My Tasks",
+    "no_tasks": "No tasks available",
+    "loading": "Loading...",
+    "refresh": "Refresh",
+    "filters": {
+      "label": "Filters:",
+      "task_type": "Task Type",
+      "status": "Status",
+      "all_types": "All Types",
+      "all_status": "All Status"
+    },
+    "table": {
+      "task_id": "Task ID",
+      "task_type": "Task Type",
+      "credits_consumed": "Credits Consumed",
+      "credits_remaining": "Credits Remaining",
+      "status": "Status",
+      "created_at": "Created At",
+      "updated_at": "Updated At"
+    },
+    "task_types": {
+      "ai_image_edit": "AI Image Editing",
+      "ai_text_generation": "AI Text Generation",
+      "ai_video_generation": "AI Video Generation"
+    },
+    "task_status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "success": "Success",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "pagination": {
+      "total_tasks": "Total {total} tasks, page {page} / {pages}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch task list",
+      "fetchError": "Task list fetch error"
+    }
+  },
+  "imageEditor": {
+    "header": {
+      "title": "AI Photo Editor for Viral Social Media Trends",
+      "subtitle": "Transform your photos into viral content with our advanced {aiImageEditor}. Create trending styles, enhance image quality, and generate social media hits using cutting-edge {nanoBananaAi} technology. From background removal to style transformation, experience the power of {geminiAiPhotoGenerator} with {newGeminiTrendPrompt} templates.",
+      "aiImageEditor": "ai image editor",
+      "nanoBananaAi": "nano banana ai",
+      "geminiAiPhotoGenerator": "gemini ai photo generator",
+      "newGeminiTrendPrompt": "new gemini trend prompt"
+    },
+    "promptEngine": {
+      "title": "AI Image Editor",
+      "subtitle": "Professional editing powered by advanced {nanoBananaAi}",
+      "tabs": {
+        "imageToImage": "Image to Image",
+        "textToImage": "Text to Image"
+      },
+      "refImage": {
+        "title": "Reference Image",
+        "count": "{count}/{max}",
+        "upload": {
+          "ctaEmpty": "Add Image",
+          "ctaMore": "Add More Images",
+          "hint": "Max 50MB • Drag & drop or click to browse"
+        }
+      },
+      "mainPrompt": {
+        "title": "Main Prompt",
+        "placeholder": "Describe your vision... (e.g., 'vintage film style', 'trending TikTok aesthetic', 'apply new gemini trend prompt effects')"
+      },
+      "buttons": {
+        "generate": "Generate Now",
+        "generating": "Generating..."
+      }
+    },
+    "gallery": {
+      "title": "Your Creations",
+      "subtitle": "Viral-ready content generated with {geminiAiPhotoGenerator}",
+      "downloadAlt": "Download",
+      "generatedImages": "Generated Images ({count})",
+      "creatingContent": "Creating viral content...",
+      "progress": "{progress}%",
+      "aiCrafting": "Our {aiFotoEditor} is crafting your perfect social media content...",
+      "aiFotoEditor": "ai foto editor"
+    },
+    "empty": {
+      "title": "Ready to Go Viral?",
+      "hintImageToImage": "Upload your photos (up to 9 images) and describe your dream style. Our ai photo editor powered by nano banana ai will transform them into trending content.",
+      "hintTextToImage": "Describe your vision and watch our ai image editor create viral-ready content with cutting-edge technology."
+    },
+    "aspectRatios": {
+      "auto": "Auto",
+      "square": "Square (1:1)",
+      "portraitSmall": "Portrait (3:4)",
+      "portraitLarge": "Portrait (9:16)",
+      "landscapeSmall": "Landscape (4:3)",
+      "landscapeLarge": "Landscape (16:9)"
+    },
+    "errors": {
+      "loginRequired": "Please sign in to use AI image editing",
+      "insufficientCredits": "Insufficient credits. You need at least 2 credits for AI image editing.",
+      "uploadFailed": "Upload failed",
+      "generateFailed": "Generation failed",
+      "taskTimeout": "Task timeout",
+      "pollError": "Failed to check status"
+    }
   }
 }

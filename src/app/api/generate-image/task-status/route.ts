@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getTaskById } from '@/models/task';
 import {
-    getTaskById,
     markTaskAsSuccess,
     markTaskAsFailed
 } from '@/services/taskService';

@@ -193,5 +193,114 @@
       "trending": "🔥 热门"
     },
     "loadMore": "加载更多模板"
+  },
+  "tasks": {
+    "title": "任务管理",
+    "no_tasks": "暂无任务",
+    "loading": "加载中...",
+    "refresh": "刷新",
+    "filters": {
+      "label": "筛选:",
+      "task_type": "任务类型",
+      "status": "状态",
+      "all_types": "全部类型",
+      "all_status": "全部状态"
+    },
+    "table": {
+      "task_id": "任务ID",
+      "task_type": "任务类型",
+      "credits_consumed": "消耗积分",
+      "credits_remaining": "剩余积分",
+      "status": "状态",
+      "created_at": "创建时间",
+      "updated_at": "更新时间"
+    },
+    "task_types": {
+      "ai_image_edit": "AI图片编辑",
+      "ai_text_generation": "AI文本生成",
+      "ai_video_generation": "AI视频生成"
+    },
+    "task_status": {
+      "pending": "等待中",
+      "processing": "处理中",
+      "success": "成功",
+      "failed": "失败",
+      "cancelled": "已取消"
+    },
+    "pagination": {
+      "total_tasks": "共 {total} 个任务，第 {page} / {pages} 页",
+      "previous": "上一页",
+      "next": "下一页"
+    },
+    "errors": {
+      "fetchFailed": "获取任务列表失败",
+      "fetchError": "获取任务列表错误"
+    }
+  },
+  "imageEditor": {
+    "header": {
+      "title": "AI图片编辑器 - 病毒式社交媒体趋势",
+      "subtitle": "使用我们先进的{aiImageEditor}将您的照片转化为病毒式内容。创建趋势风格，提升图像质量，并使用尖端的{nanoBananaAi}技术生成社交媒体热点。从背景移除到风格变换，体验{geminiAiPhotoGenerator}与{newGeminiTrendPrompt}模板的强大功能。",
+      "aiImageEditor": "AI图像编辑器",
+      "nanoBananaAi": "nano banana ai",
+      "geminiAiPhotoGenerator": "gemini ai 照片生成器",
+      "newGeminiTrendPrompt": "新 gemini 趋势提示"
+    },
+    "promptEngine": {
+      "title": "AI图像编辑器",
+      "subtitle": "由先进的{nanoBananaAi}驱动的专业编辑",
+      "tabs": {
+        "imageToImage": "图生图",
+        "textToImage": "文生图"
+      },
+      "refImage": {
+        "title": "参考图片",
+        "count": "{count}/{max}",
+        "upload": {
+          "ctaEmpty": "添加图片",
+          "ctaMore": "继续添加",
+          "hint": "最大 50MB • 拖拽上传或点击选择"
+        }
+      },
+      "mainPrompt": {
+        "title": "主要提示词",
+        "placeholder": "描述您的愿景...（例如：'复古电影风格'、'流行的TikTok美学'、'应用新gemini趋势提示效果'）"
+      },
+      "buttons": {
+        "generate": "立即生成",
+        "generating": "生成中..."
+      }
+    },
+    "gallery": {
+      "title": "您的创作",
+      "subtitle": "使用{geminiAiPhotoGenerator}生成的病毒式就绪内容",
+      "downloadAlt": "下载",
+      "generatedImages": "生成的图片 ({count})",
+      "creatingContent": "正在创建病毒式内容...",
+      "progress": "{progress}%",
+      "aiCrafting": "我们的{aiFotoEditor}正在为您制作完美的社交媒体内容...",
+      "aiFotoEditor": "ai foto editor"
+    },
+    "empty": {
+      "title": "准备开始病毒传播？",
+      "hintImageToImage": "上传您的照片（最多9张图片）并描述您的梦想风格。我们由nano banana ai驱动的AI照片编辑器将把它们转化为趋势内容。",
+      "hintTextToImage": "描述您的愿景，观看我们的AI图像编辑器用尖端技术创建病毒式就绪内容。"
+    },
+    "aspectRatios": {
+      "auto": "自动",
+      "square": "正方形 (1:1)",
+      "portraitSmall": "竖版 (3:4)",
+      "portraitLarge": "竖版 (9:16)",
+      "landscapeSmall": "横版 (4:3)",
+      "landscapeLarge": "横版 (16:9)"
+    },
+    "errors": {
+      "loginRequired": "请登录以使用AI图像编辑",
+      "insufficientCredits": "积分不足。您需要至少2个积分进行AI图像编辑。",
+      "uploadFailed": "上传失败",
+      "generateFailed": "生成失败",
+      "taskTimeout": "任务超时",
+      "pollError": "检查状态失败"
+    }
   }
 }

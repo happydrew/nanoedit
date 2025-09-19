@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
 import Image from "next/image";
-import { ToolShowcase } from "@/types/blocks/tool-showcase";
+import type { ToolShowcase } from "@/types/blocks/tool-showcase";
 import { useTranslations } from "next-intl";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { useState, useRef } from "react";
@@ -205,11 +205,11 @@ export default function ToolShowcase({ toolShowcase }: { toolShowcase: ToolShowc
                     <div className="aspect-video">
                       {item.video ? (
                         <VideoPlayer video={item.video} />
-                      ) : item.image ? (
+                      ) : item.image?.src ? (
                         <div className="relative w-full h-full">
                           <Image
                             src={item.image.src}
-                            alt={item.image.alt || item.title}
+                            alt={item.image.alt || item.title || 'Showcase item'}
                             fill
                             className="object-cover"
                             sizes="(max-width: 768px) 100vw, 50vw"

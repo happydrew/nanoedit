@@ -13,6 +13,7 @@ import { useSession } from "next-auth/react";
 import { isAuthEnabled } from "@/lib/auth";
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 interface ImageEditorProps {
   className?: string;
@@ -40,6 +41,7 @@ const aspectRatios: AspectRatio[] = [
 ];
 
 export default function ImageEditor({ className }: ImageEditorProps) {
+  const t = useTranslations();
   const { setShowSignModal } = useAppContext();
   const { data: session } = isAuthEnabled() ? useSession() : { data: null };
   const isLoggedIn = session && session.user;
@@ -55,11 +57,16 @@ export default function ImageEditor({ className }: ImageEditorProps) {
   const aspectRatioRef = useRef<HTMLDivElement>(null);
 
   const selectedAspectLabel = useMemo(() => {
-    const found = aspectRatios.find((ar) => ar.value === selectedAspectRatio);
-    if (found) return found.label;
-    if (selectedAspectRatio === "auto") return "Auto";
-    return selectedAspectRatio || "Auto";
-  }, [selectedAspectRatio]);
+    const aspectRatioMap: Record<string, string> = {
+      "auto": t('imageEditor.aspectRatios.auto'),
+      "1:1": t('imageEditor.aspectRatios.square'),
+      "3:4": t('imageEditor.aspectRatios.portraitSmall'),
+      "9:16": t('imageEditor.aspectRatios.portraitLarge'),
+      "4:3": t('imageEditor.aspectRatios.landscapeSmall'),
+      "16:9": t('imageEditor.aspectRatios.landscapeLarge')
+    };
+    return aspectRatioMap[selectedAspectRatio] || selectedAspectRatio || t('imageEditor.aspectRatios.auto');
+  }, [selectedAspectRatio, t]);
 
   // Close aspect ratio dropdown when clicking outside
   useEffect(() => {
@@ -165,11 +172,11 @@ export default function ImageEditor({ className }: ImageEditorProps) {
         // Handle specific error codes
         if (errorData.code === 'LOGIN_REQUIRED') {
           setShowSignModal(true);
-          throw new Error('Please sign in to use AI image editing');
+          throw new Error(t('imageEditor.errors.loginRequired'));
         } else if (errorData.code === 'INSUFFICIENT_CREDITS') {
-          throw new Error('Insufficient credits. You need at least 2 credits for AI image editing.');
+          throw new Error(t('imageEditor.errors.insufficientCredits'));
         } else {
-          throw new Error(errorData.error || 'Failed to start image editing');
+          throw new Error(errorData.error || t('imageEditor.errors.generateFailed'));
         }
       }
 
@@ -191,7 +198,7 @@ export default function ImageEditor({ className }: ImageEditorProps) {
           const statusResponse = await fetch(`/api/generate-image/task-status?${statusParams.toString()}`);
 
           if (!statusResponse.ok) {
-            throw new Error('Failed to check task status');
+            throw new Error(t('imageEditor.errors.pollError'));
           }
 
           const statusResult = await statusResponse.json();
@@ -225,7 +232,7 @@ export default function ImageEditor({ className }: ImageEditorProps) {
 
           } else if (statusResult.status === 'FAILED') {
             clearInterval(pollInterval);
-            throw new Error(statusResult.error || 'Image editing failed');
+            throw new Error(statusResult.error || t('imageEditor.errors.generateFailed'));
           }
 
         } catch (pollError) {
@@ -239,7 +246,7 @@ export default function ImageEditor({ className }: ImageEditorProps) {
       setTimeout(() => {
         clearInterval(pollInterval);
         if (isGenerating) {
-          console.error('Task timeout after 5 minutes');
+          console.error(t('imageEditor.errors.taskTimeout'));
           setIsGenerating(false);
           setProgress(0);
         }
@@ -261,10 +268,15 @@ export default function ImageEditor({ className }: ImageEditorProps) {
         {/* Section Header */}
         <div className="text-center mb-12 lg:mb-16">
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            AI Photo Editor for Viral Social Media Trends
+            {t('imageEditor.header.title')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Transform your photos into viral content with our advanced <span className="text-primary font-medium">ai image editor</span>. Create trending styles, enhance image quality, and generate social media hits using cutting-edge <span className="text-primary font-medium">nano banana ai</span> technology. From background removal to style transformation, experience the power of <span className="text-primary font-medium">gemini ai photo generator</span> with <span className="text-primary font-medium">new gemini trend prompt</span> templates.
+            {t('imageEditor.header.subtitle', {
+              aiImageEditor: t('imageEditor.header.aiImageEditor'),
+              nanoBananaAi: t('imageEditor.header.nanoBananaAi'),
+              geminiAiPhotoGenerator: t('imageEditor.header.geminiAiPhotoGenerator'),
+              newGeminiTrendPrompt: t('imageEditor.header.newGeminiTrendPrompt')
+            })}
           </p>
         </div>
 
@@ -278,10 +290,12 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                 </div>
                 <div>
                   <CardTitle className="text-foreground text-xl font-bold">
-                    AI Image Editor
+                    {t('imageEditor.promptEngine.title')}
                   </CardTitle>
                   <p className="text-muted-foreground text-sm mt-1">
-                    Professional editing powered by advanced <span className="text-primary">nano banana ai</span>
+                    {t('imageEditor.promptEngine.subtitle', {
+                      nanoBananaAi: t('imageEditor.header.nanoBananaAi')
+                    })}
                   </p>
                 </div>
               </div>
@@ -296,13 +310,13 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                     className=""
                   >
                     <ImageIcon className="w-4 h-4 mr-2" />
-                    Image to Image
+                    {t('imageEditor.promptEngine.tabs.imageToImage')}
                   </TabsTrigger>
                   <TabsTrigger
                     value="text-to-image"
                     className=""
                   >
-                    Text to Image
+                    {t('imageEditor.promptEngine.tabs.textToImage')}
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -312,8 +326,13 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <ImageIcon className="w-5 h-5 text-primary" />
-                    <span className="font-medium text-foreground">Reference Image</span>
-                    <span className="text-muted-foreground text-sm">{uploadedImages.length}/9</span>
+                    <span className="font-medium text-foreground">{t('imageEditor.promptEngine.refImage.title')}</span>
+                    <span className="text-muted-foreground text-sm">
+                      {t('imageEditor.promptEngine.refImage.count', {
+                        count: uploadedImages.length,
+                        max: 9
+                      })}
+                    </span>
                   </div>
 
                   {/* Hidden file input */}
@@ -339,10 +358,10 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                       <Upload className="w-6 h-6 text-muted-foreground" />
                     </div>
                     <div className="text-foreground font-medium mb-1">
-                      {uploadedImages.length === 0 ? "Add Image" : "Add More Images"}
+                      {uploadedImages.length === 0 ? t('imageEditor.promptEngine.refImage.upload.ctaEmpty') : t('imageEditor.promptEngine.refImage.upload.ctaMore')}
                     </div>
                     <div className="text-muted-foreground text-sm">
-                      Max 50MB • Drag & drop or click to browse
+                      {t('imageEditor.promptEngine.refImage.upload.hint')}
                     </div>
                   </div>
 
@@ -382,13 +401,13 @@ export default function ImageEditor({ className }: ImageEditorProps) {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Icon name="RiChatSmile3Line" className="w-5 h-5 text-primary" />
-                  <span className="font-medium text-foreground">Main Prompt</span>
+                  <span className="font-medium text-foreground">{t('imageEditor.promptEngine.mainPrompt.title')}</span>
                 </div>
                 <Textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   className="min-h-[120px] bg-muted/80 ring-0 border-0 focus:border-0 focus:ring-0 focus:outline-none text-foreground placeholder:text-muted-foreground resize-none"
-                  placeholder="Describe your vision... (e.g., 'vintage film style', 'trending TikTok aesthetic', 'apply new gemini trend prompt effects')"
+                  placeholder={t('imageEditor.promptEngine.mainPrompt.placeholder')}
                 />
 
                 {/* Aspect Ratio Dropdown - positioned at bottom left of prompt */}
@@ -414,33 +433,45 @@ export default function ImageEditor({ className }: ImageEditorProps) {
 
                     {showAspectRatioDropdown && (
                       <div className="absolute top-full left-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-10 backdrop-blur-md">
-                        {aspectRatios.map((ratio) => (
-                          <button
-                            key={ratio.value}
-                            type="button"
-                            onClick={() => {
-                              setSelectedAspectRatio(ratio.value);
-                              setShowAspectRatioDropdown(false);
-                            }}
-                            className={`w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors first:rounded-t-md last:rounded-b-md flex items-center gap-2 ${selectedAspectRatio === ratio.value
-                              ? 'bg-primary/10 text-primary'
-                              : 'text-popover-foreground'
-                              }`}
-                          >
-                            {ratio.value !== 'auto' && (
-                              <div className={`border ${selectedAspectRatio === ratio.value ? 'border-primary' : 'border-foreground'
-                                } ${ratio.value === '1:1' ? 'w-3 h-3' :
-                                  ratio.value === '3:4' ? 'w-3 h-4' :
-                                    ratio.value === '9:16' ? 'w-2.25 h-4' :
-                                      ratio.value === '4:3' ? 'w-4 h-3' :
-                                        ratio.value === '16:9' ? 'w-4 h-2.25' : 'w-3 h-3'
-                                }`} />
-                            )}
-                            <span className="whitespace-nowrap">
-                              {ratio.label}
-                            </span>
-                          </button>
-                        ))}
+                        {aspectRatios.map((ratio) => {
+                          const aspectRatioMap: Record<string, string> = {
+                            "auto": t('imageEditor.aspectRatios.auto'),
+                            "1:1": t('imageEditor.aspectRatios.square'),
+                            "3:4": t('imageEditor.aspectRatios.portraitSmall'),
+                            "9:16": t('imageEditor.aspectRatios.portraitLarge'),
+                            "4:3": t('imageEditor.aspectRatios.landscapeSmall'),
+                            "16:9": t('imageEditor.aspectRatios.landscapeLarge')
+                          };
+                          const ratioLabel = aspectRatioMap[ratio.value] || ratio.label;
+
+                          return (
+                            <button
+                              key={ratio.value}
+                              type="button"
+                              onClick={() => {
+                                setSelectedAspectRatio(ratio.value);
+                                setShowAspectRatioDropdown(false);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors first:rounded-t-md last:rounded-b-md flex items-center gap-2 ${selectedAspectRatio === ratio.value
+                                ? 'bg-primary/10 text-primary'
+                                : 'text-popover-foreground'
+                                }`}
+                            >
+                              {ratio.value !== 'auto' && (
+                                <div className={`border ${selectedAspectRatio === ratio.value ? 'border-primary' : 'border-foreground'
+                                  } ${ratio.value === '1:1' ? 'w-3 h-3' :
+                                    ratio.value === '3:4' ? 'w-3 h-4' :
+                                      ratio.value === '9:16' ? 'w-2.25 h-4' :
+                                        ratio.value === '4:3' ? 'w-4 h-3' :
+                                          ratio.value === '16:9' ? 'w-4 h-2.25' : 'w-3 h-3'
+                                  }`} />
+                              )}
+                              <span className="whitespace-nowrap">
+                                {ratioLabel}
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -459,12 +490,12 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                 {isGenerating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Generating...
+                    {t('imageEditor.promptEngine.buttons.generating')}
                   </>
                 ) : (
                   <>
                     <Zap className="w-4 h-4 mr-2" />
-                    Generate Now
+                    {t('imageEditor.promptEngine.buttons.generate')}
                   </>
                 )}
               </Button>
@@ -480,10 +511,12 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                 </div>
                 <div>
                   <CardTitle className="text-foreground text-xl font-bold">
-                    Your Creations
+                    {t('imageEditor.gallery.title')}
                   </CardTitle>
                   <p className="text-muted-foreground text-sm mt-1">
-                    Viral-ready content generated with <span className="text-primary">gemini ai photo generator</span>
+                    {t('imageEditor.gallery.subtitle', {
+                      geminiAiPhotoGenerator: t('imageEditor.header.geminiAiPhotoGenerator')
+                    })}
                   </p>
                 </div>
               </div>
@@ -496,10 +529,10 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                   <div className="flex items-center gap-3 mb-4">
                     <Loader2 className="w-5 h-5 animate-spin text-primary" />
                     <span className="text-sm font-medium text-foreground">
-                      Creating viral content...
+                      {t('imageEditor.gallery.creatingContent')}
                     </span>
                     <span className="text-sm text-muted-foreground ml-auto">
-                      {Math.round(progress)}%
+                      {t('imageEditor.gallery.progress', { progress: Math.round(progress) })}
                     </span>
                   </div>
 
@@ -510,7 +543,9 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                       <ImageIcon className="w-8 h-8 text-primary animate-pulse" />
                     </div>
                     <p className="text-muted-foreground text-sm max-w-sm">
-                      Our <span className="text-primary">ai foto editor</span> is crafting your perfect social media content...
+                      {t('imageEditor.gallery.aiCrafting', {
+                        aiFotoEditor: t('imageEditor.gallery.aiFotoEditor')
+                      })}
                     </p>
                   </div>
                 </div>
@@ -520,7 +555,7 @@ export default function ImageEditor({ className }: ImageEditorProps) {
               {!isGenerating && generatedImages.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-foreground mb-4">
-                    Generated Images ({generatedImages.length})
+                    {t('imageEditor.gallery.generatedImages', { count: generatedImages.length })}
                   </h3>
                   <div className="grid gap-4">
                     {generatedImages.map((image) => (
@@ -538,7 +573,7 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                             <Button size="sm" variant="secondary">
                               <Copy className="w-4 h-4 mr-2" />
-                              Download
+                              {t('imageEditor.gallery.downloadAlt')}
                             </Button>
                           </div>
                         </div>
@@ -565,12 +600,12 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                     <ImageIcon className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground mb-2">
-                    Ready to Go Viral?
+                    {t('imageEditor.empty.title')}
                   </h3>
                   <p className="text-muted-foreground max-w-sm">
                     {selectedTab === "image-to-image"
-                      ? "Upload your photos (up to 9 images) and describe your dream style. Our ai photo editor powered by nano banana ai will transform them into trending content."
-                      : "Describe your vision and watch our ai image editor create viral-ready content with cutting-edge technology."
+                      ? t('imageEditor.empty.hintImageToImage')
+                      : t('imageEditor.empty.hintTextToImage')
                     }
                   </p>
                 </div>

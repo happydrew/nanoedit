@@ -170,6 +170,9 @@ dependencies:
   creem:
     specifier: ^0.3.37
     version: 0.3.37(zod@3.25.76)
+  date-fns:
+    specifier: ^4.1.0
+    version: 4.1.0
   dotenv:
     specifier: ^16.5.0
     version: 16.6.1
@@ -227,6 +230,9 @@ dependencies:
   next-intl:
     specifier: ^4.1.0
     version: 4.3.9(next@15.2.3)(react@19.1.1)(typescript@5.9.2)
+  next-sitemap:
+    specifier: ^4.2.3
+    version: 4.2.3(next@15.2.3)
   next-themes:
     specifier: ^0.4.4
     version: 0.4.6(react-dom@19.1.1)(react@19.1.1)
@@ -542,6 +548,10 @@ packages:
   /@babel/runtime@7.28.4:
     resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
     engines: {node: '>=6.9.0'}
+    dev: false
+
+  /@corex/deepmerge@4.0.43:
+    resolution: {integrity: sha512-N8uEMrMPL0cu/bdboEWpQYb/0i2K5Qn8eCsxzOmxSggJbbQte7ljMRoXm917AbntqTGOzdTu+vP3KOOzoC70HQ==}
     dev: false
 
   /@cspotcode/source-map-support@0.8.1:
@@ -1606,6 +1616,10 @@ packages:
       - bufferutil
       - utf-8-validate
     dev: true
+
+  /@next/env@13.5.11:
+    resolution: {integrity: sha512-fbb2C7HChgM7CemdCY+y3N1n8pcTKdqtQLbC7/EQtPdLvlMUT9JX/dBYl8MMZAtYG4uVMyPFHXckb68q/NRwqg==}
+    dev: false
 
   /@next/env@15.2.3:
     resolution: {integrity: sha512-a26KnbW9DFEUsSxAxKBORR/uD9THoYoKbkpFywMN/AFvboTt94b8+g/07T8J6ACsdLag8/PDU60ov4rPxRAixw==}
@@ -4936,6 +4950,10 @@ packages:
       call-bound: 1.0.4
       es-errors: 1.3.0
       is-data-view: 1.0.2
+    dev: false
+
+  /date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
     dev: false
 
   /debounce@1.2.1:
@@ -8382,6 +8400,20 @@ packages:
       react: 19.1.1
       typescript: 5.9.2
       use-intl: 4.3.9(react@19.1.1)
+    dev: false
+
+  /next-sitemap@4.2.3(next@15.2.3):
+    resolution: {integrity: sha512-vjdCxeDuWDzldhCnyFCQipw5bfpl4HmZA7uoo3GAaYGjGgfL4Cxb1CiztPuWGmS+auYs7/8OekRS8C2cjdAsjQ==}
+    engines: {node: '>=14.18'}
+    hasBin: true
+    peerDependencies:
+      next: '*'
+    dependencies:
+      '@corex/deepmerge': 4.0.43
+      '@next/env': 13.5.11
+      fast-glob: 3.3.3
+      minimist: 1.2.8
+      next: 15.2.3(react-dom@19.1.1)(react@19.1.1)
     dev: false
 
   /next-themes@0.4.6(react-dom@19.1.1)(react@19.1.1):

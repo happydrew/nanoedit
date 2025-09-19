@@ -6,7 +6,7 @@
   "homepage": "https://shipany.ai",
   "scripts": {
     "dev": "cross-env NODE_NO_WARNINGS=1 next dev --turbopack",
-    "build": "next build",
+    "build": "next build && next-sitemap",
     "start": "NODE_NO_WARNINGS=1 next start",
     "lint": "next lint",
     "analyze": "ANALYZE=true pnpm build",
@@ -15,7 +15,8 @@
     "db:migrate": "npx drizzle-kit migrate --config=src/db/config.ts",
     "db:studio": "npx drizzle-kit studio --config=src/db/config.ts",
     "db:push": "npx drizzle-kit push --config=src/db/config.ts",
-    "postinstall": "fumadocs-mdx"
+    "postinstall": "fumadocs-mdx",
+    "sitemap": "next-sitemap"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "^0.1.11",
@@ -73,6 +74,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "creem": "^0.3.37",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.44.2",
     "embla-carousel-auto-scroll": "^8.5.1",
@@ -92,6 +94,7 @@
     "next": "15.2.3",
     "next-auth": "5.0.0-beta.25",
     "next-intl": "^4.1.0",
+    "next-sitemap": "^4.2.3",
     "next-themes": "^0.4.4",
     "openai": "^4.78.1",
     "postgres": "^3.4.7",

@@ -79,7 +79,7 @@ export async function updateTask(
     updated_at: new Date(),
   };
 
-  const [task] = await db
+  const [task] = await db()
     .update(tasks)
     .set(updateData)
     .where(eq(tasks.id, taskId))
@@ -90,7 +90,7 @@ export async function updateTask(
 
 // 根据任务ID获取任务
 export async function getTaskById(taskId: string): Promise<Task | null> {
-  const [task] = await db
+  const [task] = await db()
     .select()
     .from(tasks)
     .where(eq(tasks.id, taskId))
@@ -142,7 +142,7 @@ export async function getUserTasks(query: TaskQuery): Promise<{
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   // 获取总数
-  const [totalResult] = await db
+  const [totalResult] = await db()
     .select({ count: count() })
     .from(tasks)
     .where(whereClause);
@@ -151,7 +151,7 @@ export async function getUserTasks(query: TaskQuery): Promise<{
 
   // 获取分页数据
   const offset = (page - 1) * limit;
-  const taskList = await db
+  const taskList = await db()
     .select()
     .from(tasks)
     .where(whereClause)

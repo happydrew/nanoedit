@@ -40,6 +40,12 @@ export default async function ({ children }: { children: ReactNode }) {
           icon: "RiKey2Line",
           is_active: false,
         },
+        {
+          title: t("tasks.my_tasks"),
+          url: "/my-tasks",
+          icon: "RiTaskLine",
+          is_active: false,
+        },
       ],
     },
   };

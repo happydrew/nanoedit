@@ -1,4 +1,16 @@
+# *
 User-agent: *
-Disallow: /*?*q=
-Disallow: /privacy-policy
-Disallow: /terms-of-service
+Allow: /
+
+# *
+User-agent: *
+Disallow: /console/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /admin/
+
+# Host
+Host: https://nanoedit.art
+
+# Sitemaps
+Sitemap: https://nanoedit.art/sitemap.xml

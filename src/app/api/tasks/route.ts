@@ -1,6 +1,6 @@
 import { respData, respErr } from "@/lib/resp";
 import { getUserUuid } from "@/services/user";
-import { getUserCreditUsageRecords } from "@/models/creditUsageRecord";
+import { getUserTasks } from "@/models/task";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -31,28 +31,24 @@ export async function GET(request: NextRequest) {
       limit: Math.min(limit, 100) // 限制最大每页100条
     };
 
-    // 获取积分使用记录
-    const result = await getUserCreditUsageRecords(query);
+    // 获取任务列表
+    const result = await getUserTasks(query);
 
     // 格式化返回数据，隐藏敏感信息
-    const formattedRecords = result.records.map(record => ({
-      id: record.id,
-      record_no: record.record_no,
-      task_type: record.task_type,
-      task_description: record.task_description,
-      credits_consumed: record.credits_consumed,
-      credits_remaining: record.credits_remaining,
-      task_status: record.task_status,
-      external_provider: record.external_provider,
-      // 隐藏敏感字段：external_task_id, task_input, task_output
-      error_message: record.error_message,
-      started_at: record.started_at,
-      completed_at: record.completed_at,
-      created_at: record.created_at
+    const formattedTasks = result.tasks.map(task => ({
+      id: task.id,
+      task_type: task.task_type,
+      credits_consumed: task.credits_consumed,
+      credits_remaining: task.credits_remaining,
+      task_status: task.task_status,
+      // 隐藏敏感字段：external_task_id, external_provider
+      error_message: task.error_message,
+      created_at: task.created_at,
+      updated_at: task.updated_at
     }));
 
     return respData({
-      records: formattedRecords,
+      tasks: formattedTasks,
       pagination: {
         total: result.total,
         page: result.page,
@@ -62,7 +58,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("获取积分使用记录失败:", error);
-    return respErr("获取积分使用记录失败");
+    console.error("获取任务列表失败:", error);
+    return respErr("获取任务列表失败");
   }
 }
