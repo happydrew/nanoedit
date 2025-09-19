@@ -34,8 +34,7 @@ export default async function () {
       name: "amount",
       title: t("my_orders.table.amount"),
       callback: (item: any) =>
-        `${item.currency.toUpperCase() === "CNY" ? "¥" : "$"} ${
-          item.amount / 100
+        `${item.currency.toUpperCase() === "CNY" ? "¥" : "$"} ${item.amount / 100
         }`,
     },
     {
@@ -94,17 +93,17 @@ export default async function () {
 
   const table: TableSlotType = {
     title: t("my_orders.title"),
-    toolbar: {
-      items: [
-        {
-          title: t("my_orders.read_docs"),
-          icon: "RiBookLine",
-          url: "https://docs.shipany.ai",
-          target: "_blank",
-          variant: "default",
-        },
-      ],
-    },
+    // toolbar: {
+    //   items: [
+    //     {
+    //       title: t("my_orders.read_docs"),
+    //       icon: "RiBookLine",
+    //       url: "https://docs.shipany.ai",
+    //       target: "_blank",
+    //       variant: "default",
+    //     },
+    //   ],
+    // },
     columns: columns,
     data: orders,
     empty_message: t("my_orders.no_orders"),

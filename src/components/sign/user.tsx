@@ -17,7 +17,7 @@ import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { NavItem } from "@/types/blocks/base";
 
-export default function SignUser({ user }: { user: User }) {
+export default function SignUser({ user, isAdmin = false }: { user: User; isAdmin?: boolean }) {
   const t = useTranslations();
   console.log(JSON.stringify(user));
 
@@ -27,23 +27,32 @@ export default function SignUser({ user }: { user: User }) {
     return char ? char.toUpperCase() : "?";
   }, [user?.nickname, user?.email]);
 
-  const dropdownItems: NavItem[] = [
-    {
-      title: user.nickname,
-    },
-    {
-      title: t("user.user_center"),
-      url: "/my-orders",
-    },
-    {
-      title: t("user.admin_system"),
-      url: "/admin/users",
-    },
-    {
+  const dropdownItems: NavItem[] = React.useMemo(() => {
+    const items: NavItem[] = [
+      {
+        title: user.nickname,
+      },
+      {
+        title: t("user.user_center"),
+        url: "/my-orders",
+      },
+    ];
+
+    // 只有管理员才显示后台管理选项
+    if (isAdmin) {
+      items.push({
+        title: t("user.admin_system"),
+        url: "/admin/users",
+      });
+    }
+
+    items.push({
       title: t("user.sign_out"),
       onClick: () => signOut(),
-    },
-  ];
+    });
+
+    return items;
+  }, [user.nickname, t, isAdmin]);
 
   return (
     <DropdownMenu>

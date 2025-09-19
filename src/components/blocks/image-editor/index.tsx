@@ -7,13 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import Icon from "@/components/icon";
-import { Upload, ImageIcon, Zap, Copy, X, Loader2, ChevronDown } from "lucide-react";
+import { Upload, ImageIcon, Zap, Copy, X, Loader2, ChevronDown, Coins, AlertCircle, RefreshCw } from "lucide-react";
 import { useAppContext } from "@/contexts/app";
 import { useSession } from "next-auth/react";
 import { isAuthEnabled } from "@/lib/auth";
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { FaCoins } from "react-icons/fa";
 
 interface ImageEditorProps {
   className?: string;
@@ -24,6 +25,14 @@ interface GeneratedImage {
   url: string;
   prompt: string;
   createdAt: Date;
+}
+
+type GenerationStatus = 'idle' | 'uploading' | 'submitting' | 'polling' | 'completed' | 'failed';
+
+interface GenerationError {
+  message: string;
+  retryable: boolean;
+  details?: any;
 }
 
 type AspectRatio = {
@@ -53,6 +62,11 @@ export default function ImageEditor({ className }: ImageEditorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [progress, setProgress] = useState(0);
+  const [generationStatus, setGenerationStatus] = useState<GenerationStatus>('idle');
+  const [generationError, setGenerationError] = useState<GenerationError | null>(null);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [progressStartTime, setProgressStartTime] = useState<number | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const aspectRatioRef = useRef<HTMLDivElement>(null);
 
@@ -83,8 +97,37 @@ export default function ImageEditor({ className }: ImageEditorProps) {
   }, []);
 
   const handleImageUpload = useCallback((files: FileList) => {
-    const newFiles = Array.from(files).slice(0, 9 - uploadedImages.length);
-    setUploadedImages(prev => [...prev, ...newFiles]);
+    const validFiles: File[] = [];
+    const maxFiles = 5;
+    const maxSizePerFile = 5 * 1024 * 1024; // 5MB in bytes
+
+    // 检查剩余可上传数量
+    const remainingSlots = maxFiles - uploadedImages.length;
+    if (remainingSlots <= 0) {
+      alert(`最多只能上传${maxFiles}张图片`);
+      return;
+    }
+
+    // 验证每个文件
+    Array.from(files).slice(0, remainingSlots).forEach((file, index) => {
+      // 检查文件大小
+      if (file.size > maxSizePerFile) {
+        alert(`图片 "${file.name}" 超过5MB大小限制，已跳过`);
+        return;
+      }
+
+      // 检查文件类型
+      if (!file.type.startsWith('image/')) {
+        alert(`文件 "${file.name}" 不是有效的图片格式，已跳过`);
+        return;
+      }
+
+      validFiles.push(file);
+    });
+
+    if (validFiles.length > 0) {
+      setUploadedImages(prev => [...prev, ...validFiles]);
+    }
   }, [uploadedImages.length]);
 
   const removeImage = useCallback((index: number) => {
@@ -104,6 +147,64 @@ export default function ImageEditor({ className }: ImageEditorProps) {
 
   const isFormValid = selectedTab === "text-to-image" ? prompt.trim().length > 0 : uploadedImages.length > 0 && prompt.trim().length > 0;
 
+  // 计算积分消耗
+  const getCreditsRequired = () => {
+    const baseCredits = 2;
+    const aspectRatioCredits = selectedAspectRatio !== 'auto' ? 2 : 0;
+    return baseCredits + aspectRatioCredits;
+  };
+
+  // 安抚用户的轮播消息
+  const progressMessages = [
+    t('imageEditor.progress.message1'),
+    t('imageEditor.progress.message2'),
+    t('imageEditor.progress.message3'),
+    t('imageEditor.progress.message4'),
+    t('imageEditor.progress.message5'),
+    t('imageEditor.progress.message6')
+  ];
+
+  // 优化后的进度条更新逻辑 - 30秒内指数递减
+  const updateProgress = useCallback((startTime: number) => {
+    const now = Date.now();
+    const elapsed = (now - startTime) / 1000; // 秒
+    const duration = 30; // 30秒
+
+    if (elapsed >= duration) {
+      return 95; // 最高到95%，避免100%
+    }
+
+    // 指数递减公式：每经过一半时间，剩余进度减半
+    // progress = 95 * (1 - e^(-3 * elapsed / duration))
+    const progress = 95 * (1 - Math.exp(-3 * elapsed / duration));
+    return Math.min(progress, 95);
+  }, []);
+
+  // 轮播消息更新
+  useEffect(() => {
+    if (!isGenerating || !progressStartTime) return;
+
+    const messageInterval = setInterval(() => {
+      const elapsed = (Date.now() - progressStartTime) / 1000;
+      const messageIndex = Math.floor(elapsed / 5) % progressMessages.length; // 每5秒换一条
+      setStatusMessage(progressMessages[messageIndex]);
+    }, 5000);
+
+    return () => clearInterval(messageInterval);
+  }, [isGenerating, progressStartTime, progressMessages]);
+
+  // 进度条更新
+  useEffect(() => {
+    if (!isGenerating || !progressStartTime) return;
+
+    const progressInterval = setInterval(() => {
+      const newProgress = updateProgress(progressStartTime);
+      setProgress(newProgress);
+    }, 500); // 每500ms更新一次
+
+    return () => clearInterval(progressInterval);
+  }, [isGenerating, progressStartTime, updateProgress]);
+
   const generateImage = useCallback(async () => {
     if (!isFormValid || isGenerating) return;
 
@@ -115,6 +216,14 @@ export default function ImageEditor({ className }: ImageEditorProps) {
 
     setIsGenerating(true);
     setProgress(0);
+    setGenerationStatus('uploading');
+    setGenerationError(null);
+    setRetryCount(0);
+
+    // 设置进度条开始时间和初始消息
+    const startTime = Date.now();
+    setProgressStartTime(startTime);
+    setStatusMessage(t('imageEditor.progress.message1'));
 
     try {
       // Convert uploaded images to base64 array
@@ -139,16 +248,7 @@ export default function ImageEditor({ className }: ImageEditorProps) {
         console.log(`Successfully converted ${imageBase64Array.length} images`);
       }
 
-      // Simulate initial progress
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 20) {
-            clearInterval(progressInterval);
-            return prev;
-          }
-          return prev + Math.random() * 5;
-        });
-      }, 300);
+      setGenerationStatus('submitting');
 
       // Call the image editing API
       const response = await fetch('/api/generate-image', {
@@ -161,6 +261,7 @@ export default function ImageEditor({ className }: ImageEditorProps) {
           prompt: prompt,
           mode: selectedTab,
           aspectRatio: selectedAspectRatio, // Add aspect ratio
+          creditsRequired: getCreditsRequired(), // 添加积分计算
           // Add turnstile token if available
           turnstileToken: 'placeholder_token', // Replace with actual turnstile implementation
         }),
@@ -184,12 +285,15 @@ export default function ImageEditor({ className }: ImageEditorProps) {
       const taskId = result.taskId;
       const recordNo = result.recordNo; // 获取记录编号
 
-      clearInterval(progressInterval);
-      setProgress(25);
+      setGenerationStatus('polling');
 
       // Poll for task completion
+      let pollAttempts = 0;
+      const maxPollAttempts = 150; // 5分钟，每2秒一次
+
       const pollInterval = setInterval(async () => {
         try {
+          pollAttempts++;
           // 传递recordNo给task-status API
           const statusParams = new URLSearchParams({
             taskId: taskId,
@@ -198,23 +302,35 @@ export default function ImageEditor({ className }: ImageEditorProps) {
           const statusResponse = await fetch(`/api/generate-image/task-status?${statusParams.toString()}`);
 
           if (!statusResponse.ok) {
-            throw new Error(t('imageEditor.errors.pollError'));
+            if (statusResponse.status >= 500) {
+              // 服务器错误，可重试
+              console.warn(`Server error during polling (${statusResponse.status}), attempt ${pollAttempts}`);
+              if (pollAttempts >= maxPollAttempts) {
+                throw new Error(t('imageEditor.errors.serverTimeout'));
+              }
+              return; // 继续轮询
+            } else {
+              throw new Error(t('imageEditor.errors.pollError'));
+            }
           }
 
           const statusResult = await statusResponse.json();
-
-          // Update progress based on time elapsed (simulate progress for better UX)
-          setProgress(prev => {
-            if (statusResult.status === 'SUCCESS') {
-              return 100;
-            } else if (statusResult.status === 'GENERATING') {
-              return Math.min(prev + Math.random() * 10, 90);
-            }
-            return prev;
-          });
+          console.log('Status result:', JSON.stringify(statusResult, null, 2));
 
           if (statusResult.success && statusResult.status === 'SUCCESS') {
             clearInterval(pollInterval);
+            setGenerationStatus('completed');
+            setProgress(100);
+            setProgressStartTime(null);
+            setStatusMessage(t('imageEditor.progress.completed'));
+
+            console.log('Generation completed, image URL:', statusResult.editedImage);
+
+            // 验证图片URL
+            if (!statusResult.editedImage) {
+              console.error('No image URL returned from API');
+              throw new Error('生成成功但未返回图片URL');
+            }
 
             // Add generated image to results
             const newImage: GeneratedImage = {
@@ -224,43 +340,89 @@ export default function ImageEditor({ className }: ImageEditorProps) {
               createdAt: new Date()
             };
 
+            console.log('Adding new image to list:', newImage);
             setGeneratedImages(prev => [newImage, ...prev]);
-            setProgress(100);
 
-            // Reset progress after a short delay
-            setTimeout(() => setProgress(0), 2000);
+            // Reset after delay
+            setTimeout(() => {
+              setProgress(0);
+              setGenerationStatus('idle');
+              setStatusMessage('');
+              setProgressStartTime(null);
+            }, 3000);
 
           } else if (statusResult.status === 'FAILED') {
             clearInterval(pollInterval);
             throw new Error(statusResult.error || t('imageEditor.errors.generateFailed'));
+          } else if (pollAttempts >= maxPollAttempts) {
+            clearInterval(pollInterval);
+            throw new Error(t('imageEditor.errors.taskTimeout'));
           }
 
-        } catch (pollError) {
+        } catch (pollError: any) {
           console.error('Polling error:', pollError);
+
+          // 网络错误可以重试
+          if (pollError.name === 'TypeError' && pollError.message.includes('fetch')) {
+            console.warn(`Network error during polling, attempt ${pollAttempts}. Will retry...`);
+            if (pollAttempts < maxPollAttempts) {
+              setStatusMessage(t('imageEditor.status.networkError'));
+              return; // 继续轮询
+            }
+          }
+
           clearInterval(pollInterval);
           throw pollError;
         }
       }, 2000); // Poll every 2 seconds
 
-      // Set a maximum polling time of 5 minutes
-      setTimeout(() => {
-        clearInterval(pollInterval);
-        if (isGenerating) {
-          console.error(t('imageEditor.errors.taskTimeout'));
-          setIsGenerating(false);
-          setProgress(0);
-        }
-      }, 300000);
-
     } catch (error: any) {
       console.error('Image editing error:', error);
       setProgress(0);
-      // You can show an error toast here
-      alert(`Error: ${error.message}`);
+      setProgressStartTime(null);
+      setGenerationStatus('failed');
+      setStatusMessage(t('imageEditor.progress.failed'));
+
+      // 判断错误是否可重试
+      const isRetryable = error.name === 'TypeError' && error.message.includes('fetch') ||
+        error.message.includes('Network error') ||
+        error.message.includes('Server error');
+
+      setGenerationError({
+        message: error.message || t('imageEditor.errors.unknownError'),
+        retryable: isRetryable,
+        details: error
+      });
+
+      setStatusMessage(t('imageEditor.status.failed'));
     } finally {
       setIsGenerating(false);
+      setProgressStartTime(null);
     }
-  }, [isFormValid, isGenerating, prompt, selectedTab, uploadedImages, isLoggedIn, setShowSignModal]);
+  }, [isFormValid, isGenerating, prompt, selectedTab, uploadedImages, isLoggedIn, setShowSignModal, t, retryCount]);
+
+  const retryGeneration = useCallback(() => {
+    setRetryCount(prev => prev + 1);
+    setGenerationError(null);
+    generateImage();
+  }, [generateImage]);
+
+  const getStatusDisplay = () => {
+    switch (generationStatus) {
+      case 'uploading':
+        return { icon: Upload, message: t('imageEditor.status.uploading') };
+      case 'submitting':
+        return { icon: Zap, message: t('imageEditor.status.submitting') };
+      case 'polling':
+        return { icon: RefreshCw, message: t('imageEditor.status.processing') };
+      case 'completed':
+        return { icon: ImageIcon, message: t('imageEditor.status.success') };
+      case 'failed':
+        return { icon: AlertCircle, message: t('imageEditor.status.error') };
+      default:
+        return null;
+    }
+  };
 
   return (
     <section id="tool-section" className={`py-16 lg:py-24 ${className || ''}`}>
@@ -330,7 +492,7 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                     <span className="text-muted-foreground text-sm">
                       {t('imageEditor.promptEngine.refImage.count', {
                         count: uploadedImages.length,
-                        max: 9
+                        max: 5
                       })}
                     </span>
                   </div>
@@ -344,7 +506,13 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                     className="hidden"
                     aria-label="Upload reference images"
                     title="Upload reference images"
-                    onChange={(e) => e.target.files && handleImageUpload(e.target.files)}
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        handleImageUpload(e.target.files);
+                        // 重置文件input的value，允许重复上传同一文件
+                        e.target.value = '';
+                      }
+                    }}
                   />
 
                   {/* Upload area */}
@@ -361,7 +529,7 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                       {uploadedImages.length === 0 ? t('imageEditor.promptEngine.refImage.upload.ctaEmpty') : t('imageEditor.promptEngine.refImage.upload.ctaMore')}
                     </div>
                     <div className="text-muted-foreground text-sm">
-                      {t('imageEditor.promptEngine.refImage.upload.hint')}
+                      {t('imageEditor.promptEngine.refImage.upload.hint')} (最多5张，每张不超过5MB)
                     </div>
                   </div>
 
@@ -496,6 +664,10 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                   <>
                     <Zap className="w-4 h-4 mr-2" />
                     {t('imageEditor.promptEngine.buttons.generate')}
+                    <span className="flex items-center justify-center gap-0.5">
+                      {getCreditsRequired()}
+                      <FaCoins className="mt-0.5" size={12} />
+                    </span>
                   </>
                 )}
               </Button>
@@ -525,28 +697,28 @@ export default function ImageEditor({ className }: ImageEditorProps) {
             <CardContent>
               {/* Loading State */}
               {isGenerating && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                    <span className="text-sm font-medium text-foreground">
-                      {t('imageEditor.gallery.creatingContent')}
-                    </span>
-                    <span className="text-sm text-muted-foreground ml-auto">
-                      {t('imageEditor.gallery.progress', { progress: Math.round(progress) })}
-                    </span>
+                <div className="flex flex-col items-center justify-center py-16 space-y-6">
+                  {/* 进度条居中显示 */}
+                  <div className="w-full max-w-md space-y-4">
+                    <div className="text-center">
+                      <span className="text-lg font-medium text-foreground">
+                        {Math.round(progress)}%
+                      </span>
+                    </div>
+
+                    <Progress value={progress} className="w-full h-2" />
+
+                    {/* 轮播消息 */}
+                    <div className="text-center min-h-[2.5rem] flex items-center justify-center">
+                      <p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
+                        {statusMessage}
+                      </p>
+                    </div>
                   </div>
 
-                  <Progress value={progress} className="w-full" />
-
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4 animate-pulse">
-                      <ImageIcon className="w-8 h-8 text-primary animate-pulse" />
-                    </div>
-                    <p className="text-muted-foreground text-sm max-w-sm">
-                      {t('imageEditor.gallery.aiCrafting', {
-                        aiFotoEditor: t('imageEditor.gallery.aiFotoEditor')
-                      })}
-                    </p>
+                  {/* AI图标动画 */}
+                  <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
+                    <ImageIcon className="w-10 h-10 text-primary animate-pulse" />
                   </div>
                 </div>
               )}
@@ -567,6 +739,10 @@ export default function ImageEditor({ className }: ImageEditorProps) {
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                             sizes="(max-width: 768px) 100vw, 50vw"
+                            onLoad={() => console.log('Image loaded successfully:', image.url)}
+                            onError={(e) => {
+                              console.error('Image failed to load:', image.url, e);
+                            }}
                           />
 
                           {/* Download overlay */}

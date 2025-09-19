@@ -1,7 +1,7 @@
 import { respData, respErr, respJson } from "@/lib/resp";
 
 import { findUserByUuid } from "@/models/user";
-import { getUserUuid } from "@/services/user";
+import { getUserUuid, checkIsAdmin } from "@/services/user";
 import { getUserCredits } from "@/services/credit";
 import { User } from "@/types/user";
 
@@ -18,10 +18,12 @@ export async function POST(req: Request) {
     }
 
     const userCredits = await getUserCredits(user_uuid);
+    const isAdmin = await checkIsAdmin(dbUser.email);
 
     const user = {
       ...(dbUser as unknown as User),
       credits: userCredits,
+      isAdmin,
     };
 
     return respData(user);

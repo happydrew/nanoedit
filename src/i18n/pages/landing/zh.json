@@ -172,7 +172,7 @@
   "usage": {
     "name": "usage",
     "title": "如何使用NanoBanana AI",
-    "description": "三个简单步骤编辑您的图像：",
+    "description": "四个简单步骤编辑您的图像：",
     "image": {
       "src": "/imgs/features/how-to-use.png"
     },
@@ -195,14 +195,14 @@
       },
       {
         "title": "获得即时结果",
-        "description": "我们的AI处理您的请求，几秒钟内提供专业级的结果。",
+        "description": "我们的AI处理您的请求，数十秒内提供专业级的结果。",
         "image": {
           "src": "/imgs/features/instant-results.png"
         }
       },
       {
-        "title": "下载分享",
-        "description": "以高分辨率保存您的编辑图像或直接分享到社交媒体平台。",
+        "title": "获得精美图片",
+        "description": "分享到社交媒体，让您的社媒获得更多关注，提升交互参与度。",
         "image": {
           "src": "/imgs/features/download-share.png"
         }
@@ -283,7 +283,7 @@
         "buttons": [
           {
             "text": "尝试物体移除",
-            "url": "/editor?feature=removal",
+            "url": "#tool-section",
             "variant": "default",
             "icon": "RiMagicLine"
           }
@@ -321,7 +321,7 @@
         "buttons": [
           {
             "text": "尝试添加物体",
-            "url": "/editor?feature=addition",
+            "url": "#tool-section",
             "variant": "default",
             "icon": "RiAddLine"
           }
@@ -354,7 +354,7 @@
         "buttons": [
           {
             "text": "更换背景",
-            "url": "/editor?feature=background",
+            "url": "#tool-section",
             "variant": "default",
             "icon": "RiImageLine"
           },
@@ -377,12 +377,12 @@
     "items": [
       {
         "title": "已编辑图像",
-        "label": "250万+",
+        "label": "25K+",
         "description": "成功处理"
       },
       {
         "title": "活跃用户",
-        "label": "5万+",
+        "label": "5K+",
         "description": "创意专业人士"
       },
       {
@@ -488,7 +488,7 @@
     "buttons": [
       {
         "title": "免费开始编辑",
-        "url": "/editor",
+        "url": "#tool-section",
         "target": "_self",
         "icon": "RiMagicFill"
       },

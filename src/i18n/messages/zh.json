@@ -294,6 +294,16 @@
       "landscapeSmall": "横版 (4:3)",
       "landscapeLarge": "横版 (16:9)"
     },
+    "progress": {
+      "message1": "我们的先进AI模型正在努力按照您的要求生成图片...",
+      "message2": "请耐心等待，一般1分钟之内能够完成图片生成",
+      "message3": "正在使用最新的Nano Banana技术处理您的请求",
+      "message4": "您的创意正在被AI精心雕琢，马上就好",
+      "message5": "高质量的图片生成需要一些时间，请稍候",
+      "message6": "AI正在理解您的需求并创造独特的视觉效果",
+      "completed": "图片生成完成！",
+      "failed": "图片生成失败，请重试"
+    },
     "errors": {
       "loginRequired": "请登录以使用AI图像编辑",
       "insufficientCredits": "积分不足。您需要至少2个积分进行AI图像编辑。",

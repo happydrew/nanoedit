@@ -9,19 +9,22 @@ import {
     ExternalProvider
 } from '@/services/taskService';
 import { NextRequest, NextResponse } from 'next/server';
+import { sl } from 'date-fns/locale';
 
 // 可选：设置为edge运行时
 // export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
     try {
-
+        // await new Promise(resolve => setTimeout(resolve, 1000));
         // return NextResponse.json({
         //     success: true,
-        //     taskId: 'bf09df73fdcd5af0803a191713b4ccf7',
+        //     taskId: "3e1ad7154a76dd4ca256677c2c05dfac",
+        //     recordNo: "ai_image_edit_739173836218437", // 返回任务ID供前端使用
         //     status: 'GENERATING',
-        //     message: 'Generation task created successfully'
+        //     message: 'Image editing task created successfully'
         // }, { status: 200 });
+
 
         // 获取客户端IP
         const forwardedFor = request.headers.get("x-forwarded-for");
@@ -30,7 +33,7 @@ export async function POST(request: NextRequest) {
 
         // 解析请求体 - 支持多图片编辑功能
         const requestData = await request.json();
-        const { images, prompt, mode, aspectRatio, turnstileToken } = requestData;
+        const { images, prompt, mode, aspectRatio, creditsRequired, turnstileToken } = requestData;
 
         if (!turnstileToken || turnstileToken.length < 10) {
             console.error('Missing turnstileToken, or invalid length');
@@ -74,11 +77,18 @@ export async function POST(request: NextRequest) {
 
         console.log(`User ${userId} is logged in`);
 
-        // 检查用户积分是否足够（AI图片编辑需要2积分）
-        const hasCredits = await hasEnoughCredits(userId, 2);
+        // 计算所需积分
+        const baseCredits = 2;
+        const aspectRatioCredits = aspectRatio !== 'auto' ? 2 : 0;
+        const totalCredits = creditsRequired || (baseCredits + aspectRatioCredits);
+
+        console.log(`Calculating credits: base=${baseCredits}, aspectRatio=${aspectRatioCredits}, total=${totalCredits}`);
+
+        // 检查用户积分是否足够
+        const hasCredits = await hasEnoughCredits(userId, totalCredits);
         if (!hasCredits) {
             return NextResponse.json(
-                { error: 'Insufficient credits. You need at least 2 credits for AI image editing.', code: 'INSUFFICIENT_CREDITS' },
+                { error: `Insufficient credits. You need at least ${totalCredits} credits for AI image editing.`, code: 'INSUFFICIENT_CREDITS' },
                 { status: 402 }
             );
         }
@@ -115,11 +125,7 @@ export async function POST(request: NextRequest) {
             image_size: aspectRatio
         };
 
-        // 添加aspect ratio如果提供了且不是auto
-        if (aspectRatio && aspectRatio !== 'auto') {
-            apiRequestBody.input.aspect_ratio = aspectRatio;
-            console.log(`Using aspect ratio: ${aspectRatio}`);
-        }
+        console.log('Nano Banana Edit API request body:', JSON.stringify(apiRequestBody));
 
         // 发送请求到 Kie.ai Nano Banana Edit API
         const apiResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
@@ -127,7 +133,6 @@ export async function POST(request: NextRequest) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`,
-                'Accept': 'application/json'
             },
             body: JSON.stringify(apiRequestBody)
         });
@@ -159,17 +164,17 @@ export async function POST(request: NextRequest) {
         const taskId = await createTaskRecord(
             userId,
             TaskType.AIImageEdit,
-            2,
+            totalCredits,
             {
                 externalProvider: ExternalProvider.KieAI,
                 externalTaskId: externalTaskId, // 使用kie.ai返回的taskId
             }
         );
 
-        // 扣除用户积分（2积分）
-        const deducted = await deductCredits(userId, 2, 'AI image editing with Nano Banana');
+        // 扣除用户积分
+        const deducted = await deductCredits(userId, totalCredits, `AI image editing with Nano Banana (${totalCredits} credits)`);
         if (!deducted) {
-            console.error(`Failed to deduct 2 credits for user ${userId}`);
+            console.error(`Failed to deduct ${totalCredits} credits for user ${userId}`);
             await markTaskAsFailed(taskId, 'Failed to deduct credits');
             return NextResponse.json(
                 { error: 'Failed to process payment. Please try again.' },

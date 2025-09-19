@@ -23,6 +23,6 @@
     },
     "target": "ES2017"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/[locale]/(default)/page.tsx.old", "src/components/ui/button.tsx.old", "src/components/ui/tabs.tsx.old", "src/components/ui/textarea.tsx.old", "tailwind.config.ts.bak"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/[locale]/(default)/page.tsx.old", "src/components/ui/button.tsx.old", "src/components/ui/tabs.tsx.old", "src/components/ui/textarea.tsx.old", "tailwind.config.ts.bak", "src/app/[locale]/(default)/(console)/api-keys/create/page.tsx.bak", "src/app/[locale]/(default)/(console)/my-invites/page.tsx.bak"],
   "exclude": ["node_modules"]
 }

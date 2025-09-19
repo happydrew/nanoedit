@@ -11,9 +11,12 @@ export default function ({ ...table }: TableSlotType) {
         <p className="text-sm text-muted-foreground">{table.description}</p>
       </div>
       {table.tip && (
-        <p className="text-sm text-muted-foreground">
-          {table.tip.description || table.tip.title}
-        </p>
+        <div className="text-sm text-muted-foreground">
+          {typeof table.tip.title === 'string' ?
+            table.tip.description || table.tip.title :
+            table.tip.title
+          }
+        </div>
       )}
       {table.toolbar && <Toolbar items={table.toolbar.items} />}
       <Separator />

@@ -104,7 +104,7 @@ export default function Feature3({ section }: { section: SectionType }) {
   return (
     <section className="py-16 bg-gradient-to-b from-background to-muted/10">
       <div className="container px-8">
-        <div className="mb-16 max-w-xl px-8 lg:px-0">
+        <div className="mb-16 max-w-xl px-8 lg:px-0 text-center mx-auto">
           {section.label && (
             <motion.div
               initial={{ opacity: 0, y: 15 }}
@@ -222,67 +222,12 @@ export default function Feature3({ section }: { section: SectionType }) {
                         </div>
                       </motion.div>
                       
-                      {/* Mobile image */}
-                      {item.image && (
-                        <div className="mt-6 block border border-border/30 bg-muted/20 px-4 py-6 rounded-lg lg:hidden">
-                          <div className="aspect-video">
-                            <img
-                              src={item.image?.src}
-                              alt={item.image?.alt || item.title}
-                              className="h-full w-full rounded-md border border-border/20 object-cover shadow-sm"
-                            />
-                          </div>
-                        </div>
-                      )}
                     </TabsTrigger>
                   </motion.div>
                 );
               })}
             </TabsList>
             
-            {/* Desktop image display */}
-            <div className="mt-12 hidden rounded-xl lg:block relative overflow-hidden">
-              <AnimatePresence mode="wait">
-                {section.items?.map((item, index) => {
-                  if (!item.image) return null;
-                  const tabValue = `tab-${index + 1}`;
-                  
-                  return (
-                    <TabsContent
-                      key={tabValue}
-                      value={tabValue}
-                      className="aspect-video"
-                    >
-                      <motion.div
-                        variants={imageVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        className="relative h-full w-full"
-                      >
-                        <img
-                          src={item.image.src}
-                          alt={item.image.alt || item.title}
-                          className="h-full w-full rounded-xl border border-border/30 object-cover shadow-md"
-                        />
-                        
-                        {/* Subtle image overlay with step info */}
-                        <motion.div
-                          className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm border border-border/20"
-                          initial={{ opacity: 0, x: -15 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.2, duration: 0.3 }}
-                        >
-                          <span className="text-sm font-medium text-foreground/90">
-                            Step {index + 1}: {item.title}
-                          </span>
-                        </motion.div>
-                      </motion.div>
-                    </TabsContent>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
           </Tabs>
         </div>
       </div>

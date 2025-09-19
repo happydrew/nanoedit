@@ -294,6 +294,16 @@
       "landscapeSmall": "Landscape (4:3)",
       "landscapeLarge": "Landscape (16:9)"
     },
+    "progress": {
+      "message1": "Our advanced AI model is working hard to generate images according to your requirements...",
+      "message2": "Please be patient, usually completed within 1 minute",
+      "message3": "Processing your request using the latest Nano Banana technology",
+      "message4": "Your creativity is being carefully crafted by AI, almost ready",
+      "message5": "High-quality image generation takes some time, please wait",
+      "message6": "AI is understanding your needs and creating unique visual effects",
+      "completed": "Image generation completed!",
+      "failed": "Image generation failed, please try again"
+    },
     "errors": {
       "loginRequired": "Please sign in to use AI image editing",
       "insufficientCredits": "Insufficient credits. You need at least 2 credits for AI image editing.",

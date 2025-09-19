@@ -463,7 +463,7 @@
     "name": "footer",
     "brand": {
       "title": "NanoEdit",
-      "description": "The most powerful AI photo editor powered by Nano Banana AI. Transform your images with trending social media styles and advanced Gemini AI photo generator capabilities.",
+      "description": "The most powerful AI photo editor powered by Nano Banana AI. Transform your images with trending social media styles.",
       "logo": {
         "src": "/logo.png",
         "alt": "NanoEdit - Nano Banana AI Photo Editor"

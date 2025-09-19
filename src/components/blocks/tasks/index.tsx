@@ -78,8 +78,8 @@ export default function TaskManage() {
   });
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
-    task_type: '',
-    task_status: '',
+    task_type: 'all',
+    task_status: 'all',
     page: 1
   });
 
@@ -88,8 +88,8 @@ export default function TaskManage() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (filters.task_type) params.append('task_type', filters.task_type);
-      if (filters.task_status) params.append('task_status', filters.task_status);
+      if (filters.task_type && filters.task_type !== 'all') params.append('task_type', filters.task_type);
+      if (filters.task_status && filters.task_status !== 'all') params.append('task_status', filters.task_status);
       params.append('page', filters.page.toString());
       params.append('limit', '20');
 
@@ -154,7 +154,7 @@ export default function TaskManage() {
                 <SelectValue placeholder={t('tasks.filters.task_type')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t('tasks.filters.all_types')}</SelectItem>
+                <SelectItem value="all">{t('tasks.filters.all_types')}</SelectItem>
                 <SelectItem value="ai_image_edit">{t('tasks.task_types.ai_image_edit')}</SelectItem>
                 <SelectItem value="ai_text_generation">{t('tasks.task_types.ai_text_generation')}</SelectItem>
                 <SelectItem value="ai_video_generation">{t('tasks.task_types.ai_video_generation')}</SelectItem>
@@ -166,7 +166,7 @@ export default function TaskManage() {
                 <SelectValue placeholder={t('tasks.filters.status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t('tasks.filters.all_status')}</SelectItem>
+                <SelectItem value="all">{t('tasks.filters.all_status')}</SelectItem>
                 <SelectItem value="pending">{t('tasks.task_status.pending')}</SelectItem>
                 <SelectItem value="processing">{t('tasks.task_status.processing')}</SelectItem>
                 <SelectItem value="success">{t('tasks.task_status.success')}</SelectItem>

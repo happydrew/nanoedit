@@ -125,3 +125,17 @@ export async function getUserInfo() {
 
   return user;
 }
+
+export async function checkIsAdmin(email?: string) {
+  if (!email) {
+    const userEmail = await getUserEmail();
+    email = userEmail;
+  }
+
+  if (!email) {
+    return false;
+  }
+
+  const adminEmails = process.env.ADMIN_EMAILS?.split(",");
+  return adminEmails?.includes(email) || false;
+}

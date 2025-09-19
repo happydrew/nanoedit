@@ -14,7 +14,7 @@ export default function SignToggle() {
 
   return (
     <div className="flex items-center gap-x-2 px-2 cursor-pointer">
-      {user ? <User user={user} /> : <SignIn />}
+      {user ? <User user={user} isAdmin={user.isAdmin} /> : <SignIn />}
     </div>
   );
 }
